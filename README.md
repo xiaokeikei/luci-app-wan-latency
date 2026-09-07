@@ -16,11 +16,11 @@
 
 ### 实时状态与历史总览
 
-![公网延迟监控总览](docs/screenshots/dashboard-overview.png)
+![公网延迟监控总览](docs/screenshots/dashboard-overview-v2.png)
 
 ### 曲线筛选
 
-![按目标筛选延迟曲线](docs/screenshots/series-filter.png)
+![按目标筛选延迟曲线](docs/screenshots/series-filter-v2.png)
 
 ## 依赖
 
