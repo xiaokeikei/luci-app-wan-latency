@@ -1,0 +1,7 @@
+*.ipk
+*.apk
+bin/
+build_dir/
+staging_dir/
+.DS_Store
+Thumbs.db

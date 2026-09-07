@@ -1,0 +1,25 @@
+#!/bin/sh /etc/rc.common
+START=99
+STOP=10
+USE_PROCD=1
+PROG=/usr/sbin/wan-latencyd
+
+start_service() {
+	mkdir -p /overlay/wan-latency/data /etc/wan-latency
+	echo /overlay/wan-latency/data > /tmp/wan-latency.datadir
+	if [ ! -s /etc/wan-latency/targets.conf ]; then
+		cat > /etc/wan-latency/targets.conf << 'EOF'
+# id|name|host|color
+ali|阿里云|223.5.5.5|#ff7a1a
+tencent|腾讯云|119.29.29.29|#2ec7ff
+steam|Steam|store.steampowered.com|#8bdc63
+EOF
+	fi
+	procd_open_instance
+	procd_set_param command "$PROG"
+	procd_set_param respawn 3600 5 5
+	procd_set_param nice 19
+	procd_set_param stderr 1
+	procd_set_param stdout 0
+	procd_close_instance
+}
