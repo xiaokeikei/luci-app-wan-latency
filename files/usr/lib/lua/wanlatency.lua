@@ -13,6 +13,28 @@ INTERVAL_PATH = "/etc/wan-latency/interval"
 MAX_TARGETS = 12
 ALLOWED_INTERVALS = {2,5,10,15,30,60,120,300}
 
+local function uci_number(option, default, minimum, maximum)
+  local p = io.popen("uci -q get wan-latency.global." .. option .. " 2>/dev/null")
+  local n
+  if p then n = tonumber(p:read("*l") or ""); p:close() end
+  n = math.floor(n or default)
+  if n < minimum then n = minimum end
+  if n > maximum then n = maximum end
+  return n
+end
+
+function load_retain_days()
+  return uci_number("retain_days", 366, 1, 3660)
+end
+
+function load_latency_threshold()
+  return uci_number("latency_threshold_ms", 150, 1, 60000)
+end
+
+function load_loss_alert_consecutive()
+  return uci_number("loss_alert_consecutive", 3, 1, 100)
+end
+
 function normalize_interval(n)
   n = tonumber(n)
   if not n then return 5 end
@@ -359,6 +381,12 @@ function sanitize_name(name)
   return name
 end
 
+function normalize_color(color, fallback)
+  color = tostring(color or "")
+  if color:match("^#[%x][%x][%x][%x][%x][%x]$") then return color end
+  return fallback or PALETTE[1]
+end
+
 function load_targets()
   local list = {}
   local f = io.open(TARGET_CONF, "r")
@@ -368,7 +396,7 @@ function load_targets()
       if line ~= "" and not line:match("^#") then
         local id, name, host, color = line:match("^([^|]+)|([^|]+)|([^|]+)|([^|]+)$")
         if valid_id(id) and valid_host(host) then
-          list[#list + 1] = { id = id, name = sanitize_name(name) or id, host = host, color = color or PALETTE[1] }
+          list[#list + 1] = { id = id, name = sanitize_name(name) or id, host = host, color = normalize_color(color, PALETTE[1]) }
         end
       end
     end
@@ -390,11 +418,28 @@ function save_targets(list)
   f:write("# id|name|host|color\n")
   for i = 1, #list do
     local t = list[i]
-    f:write(string.format("%s|%s|%s|%s\n", t.id, t.name, t.host, t.color or PALETTE[((i-1)%#PALETTE)+1]))
+    f:write(string.format("%s|%s|%s|%s\n", t.id, t.name, t.host, normalize_color(t.color, PALETTE[((i-1)%#PALETTE)+1])))
   end
   f:close()
   os.rename(tmp, TARGET_CONF)
   return true
+end
+
+function with_target_lock(callback)
+  local ok_nixio, nixio = pcall(require, "nixio")
+  local lock = "/tmp/wan-latency-targets.lock"
+  local acquired = false
+  for _ = 1, 50 do
+    local rc = os.execute("mkdir '" .. lock .. "' 2>/dev/null")
+    if rc == 0 or rc == true then acquired = true; break end
+    if ok_nixio and nixio.nanosleep then pcall(nixio.nanosleep, 0, 100000000)
+    else os.execute("sleep 1") end
+  end
+  if not acquired then return false, "配置正忙，请稍后重试" end
+  local ok, a, b = pcall(callback)
+  os.execute("rmdir '" .. lock .. "' 2>/dev/null")
+  if not ok then return false, tostring(a) end
+  return true, a, b
 end
 
 function next_color(list)

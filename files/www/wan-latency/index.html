@@ -51,6 +51,7 @@ canvas { width: 100%; height: 420px; display: block; cursor: crosshair; }
 .tip { position: fixed; pointer-events: none; background: #0c1320; border: 1px solid var(--line); color: var(--text); padding: 8px 10px; border-radius: 10px; font-size: 12px; display: none; z-index: 9; }
 .stale { color: var(--loss); }
 .err { color: var(--loss); font-size: 13px; }
+.method { display:inline-block; margin-left:6px; padding:1px 6px; border:1px solid var(--line); border-radius:999px; font-size:10px; color:var(--muted); }
 
 .series-bar { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
 .series-filters { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
@@ -94,6 +95,7 @@ canvas { width: 100%; height: 420px; display: block; cursor: crosshair; }
     <input id="toTime" type="datetime-local">
     <button class="btn" id="applyCustom">筛选</button>
     <button class="btn" id="liveBtn">实时跟随</button>
+    <button class="btn" id="exportCsv">导出 CSV</button>
     <span class="sub" style="margin:0 0 0 8px">探测间隔</span>
     <select id="pingInterval" class="btn">
       <option value="2">2秒</option>
@@ -163,6 +165,10 @@ function toLocalInput(ts){
 }
 function fromLocalInput(v){ return v ? Math.floor(new Date(v).getTime()/1000) : null; }
 function fmtMs(v){ return (v==null || isNaN(v)) ? "--" : Number(v).toFixed(1); }
+function esc(v){
+  return String(v == null ? "" : v).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
+}
+function methodLabel(v){ return ({icmp:"ICMP",tcp443:"TCP 443",tcp80:"TCP 80",dns:"DNS",failed:"失败",unknown:"未知"})[v] || String(v || "未知"); }
 
 function updatePresetButtons(){
   const ids = (data && data.targets || []).map(t => t.id);
@@ -192,10 +198,10 @@ function renderCards(){
     const cur = (latestMap[t.id] && latestMap[t.id].rtt != null) ? latestMap[t.id].rtt : null;
     const ip = latestMap[t.id] && latestMap[t.id].ip && latestMap[t.id].ip !== t.host ? latestMap[t.id].ip : "";
     return '<div class="card" draggable="true" data-id="' + t.id + '" title="拖动可调整顺序">' +
-      '<div class="name"><span><span class="dot" style="background:' + t.color + '"></span>' + t.name + ' ' + t.host + (ip ? " / " + ip : "") + '</span>' +
+      '<div class="name"><span><span class="dot" style="background:' + esc(t.color) + '"></span>' + esc(t.name) + ' ' + esc(t.host) + (ip ? " / " + esc(ip) : "") + '<span class="method">' + esc(methodLabel(st.method)) + '</span></span>' +
       '<span><span>' + "丢包 " + fmtMs(st.loss) + '%</span> <button class="xbtn" data-del="' + t.id + '" title="删除">×</button></span></div>' +
       '<div class="val">' + fmtMs(cur) + '<small>ms</small></div>' +
-      '<div class="meta">区间 min/avg/max ' + fmtMs(st.min) + " / " + fmtMs(st.avg) + " / " + fmtMs(st.max) + "</div></div>";
+      '<div class="meta">min/avg/max ' + fmtMs(st.min) + " / " + fmtMs(st.avg) + " / " + fmtMs(st.max) + " · 抖动 " + fmtMs(st.jitter) + " · P50/P95/P99 " + fmtMs(st.p50) + "/" + fmtMs(st.p95) + "/" + fmtMs(st.p99) + "</div></div>";
   }).join("");
   box.querySelectorAll("[data-del]").forEach(btn => {
     btn.addEventListener("click", ev => { ev.stopPropagation(); delTarget(btn.getAttribute("data-del")); });
@@ -257,8 +263,8 @@ function renderSeriesFilters(){
   if (!targets.length) { el.innerHTML = ""; seriesCountText(); return; }
   el.innerHTML = targets.map(t => {
     const on = !hidden[t.id];
-    return '<label class="chip ' + (on ? "on" : "off") + '" data-sid="' + t.id + '" title="' + t.host + '">' +
-      '<span class="dot" style="background:' + t.color + '"></span>' + t.name + "</label>";
+    return '<label class="chip ' + (on ? "on" : "off") + '" data-sid="' + esc(t.id) + '" title="' + esc(t.host) + '">' +
+      '<span class="dot" style="background:' + esc(t.color) + '"></span>' + esc(t.name) + "</label>";
   }).join("");
   el.querySelectorAll("[data-sid]").forEach(s => {
     s.addEventListener("click", () => {
@@ -279,7 +285,7 @@ function renderLegend(){
   const targets = (data && data.targets) || [];
   el.innerHTML = targets.map(t => {
     const dim = hidden[t.id] ? "opacity:.35;" : "";
-    return '<span data-hid="' + t.id + '" style="cursor:pointer;' + dim + '"><span class="dot" style="background:' + t.color + '"></span>' + t.name + "</span>";
+    return '<span data-hid="' + esc(t.id) + '" style="cursor:pointer;' + dim + '"><span class="dot" style="background:' + esc(t.color) + '"></span>' + esc(t.name) + "</span>";
   }).join("") + '<span>上方可勾选显示哪几条曲线 · 卡片可拖动排序 · 曲线拖拽缩放，双击还原，滚轮放大</span>';
   el.querySelectorAll("[data-hid]").forEach(s => {
     s.addEventListener("click", () => {
@@ -341,7 +347,7 @@ async function loadQuery(){
     : "采集正常 · " + ((data.targets||[]).length) + " 个目标 · 每 " + pingInterval + " 秒探测 · 原始点 " + (data.count||0) + " · 显示步长 " + data.step + "s · " + fmtTime(from) + " 至 " + fmtTime(to);
   if (data.meta) {
     const mb = ((data.meta.bytes||0)/1024/1024).toFixed(2);
-    document.getElementById("storeLine").textContent = "已存 " + (data.meta.samples||0) + " 点 / " + mb + " MB，保留一年";
+    document.getElementById("storeLine").textContent = "已存 " + (data.meta.samples||0) + " 点 / " + mb + " MB，保留 " + (data.meta.retain_days || 366) + " 天";
   }
   updatePageSub();
   if (!custom) {
@@ -449,7 +455,7 @@ function draw(){
     const shown = visibleTargets();
     tip.innerHTML = fmtTime(data.t[idx]) + (shown.length ? shown : (data.targets||[])).map(t => {
       const s = (data.series||{})[t.id] || {};
-      return "<br>" + t.name + " " + fmtMs(s.avg && s.avg[idx]) + " ms";
+      return "<br>" + esc(t.name) + " " + fmtMs(s.avg && s.avg[idx]) + " ms";
     }).join("");
   }
   if (drag){
@@ -524,6 +530,21 @@ document.getElementById("liveBtn").addEventListener("click", () => {
   live = !live; custom=false;
   document.getElementById("liveBtn").classList.toggle("active", live);
   if (live) loadQuery();
+});
+document.getElementById("exportCsv").addEventListener("click", () => {
+  if (!data || !data.t) return;
+  const targets = visibleTargets();
+  const rows = [["time"].concat(targets.map(t => t.name))];
+  data.t.forEach((ts, i) => rows.push([fmtTime(ts)].concat(targets.map(t => {
+    const s = (data.series || {})[t.id] || {};
+    return s.avg && s.avg[i] != null ? s.avg[i] : "";
+  }))));
+  const csv = rows.map(row => row.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(",")).join("\r\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob(["\ufeff" + csv], {type:"text/csv;charset=utf-8"}));
+  a.download = "wan-latency-" + Date.now() + ".csv";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 });
 
 document.getElementById("seriesAll").addEventListener("click", () => {

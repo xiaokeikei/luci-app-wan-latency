@@ -14,7 +14,7 @@ return view.extend({
 		};
 
 		var frame = E('iframe', {
-			src: '/wan-latency/index.html?v=20260907-auth',
+			src: '/wan-latency/index.html?v=20260908-v120',
 			style: 'width:100%;height:calc(100vh - 120px);border:0;border-radius:12px;background:transparent'
 		});
 		return E('div', { style: 'margin:-8px' }, [frame]);

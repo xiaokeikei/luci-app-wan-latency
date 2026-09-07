@@ -1,5 +1,22 @@
 # luci-app-wan-latency
 
+## v1.2.0
+
+- 所有 API 请求通过 LuCI 已认证的 `cgi-io` RPC 桥接，不再暴露匿名 CGI 接口。
+- 修复自定义目标名称造成的持久型 XSS 风险，并校验曲线颜色。
+- 探测结果标注 ICMP、TCP 443、TCP 80、DNS 或失败，避免混淆不同测量方式。
+- 新增抖动、P50、P95、P99 统计和当前区间 CSV 导出。
+- `enabled` 与 `retain_days` UCI 配置现在会真正生效。
+- 配置写入增加并发锁；探测临时文件改用进程私有目录。
+- 新增连续失败、恢复和高延迟的系统日志告警。
+
+默认告警配置：
+
+```uci
+option latency_threshold_ms '150'
+option loss_alert_consecutive '3'
+```
+
 一个适用于 OpenWrt / iStoreOS 的公网延迟监控插件。它持续从 WAN 接口探测多个目标，将数据保存在路由器本地，并在 LuCI「状态 → 公网延迟」中展示实时状态和历史曲线。
 
 ## 功能
