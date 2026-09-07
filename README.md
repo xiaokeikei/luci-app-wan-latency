@@ -12,6 +12,16 @@
 - 默认保留 366 天数据
 - 自带阿里云、腾讯云和 Steam 三个预设目标
 
+## 界面预览
+
+### 实时状态与历史总览
+
+![公网延迟监控总览](docs/screenshots/dashboard-overview.png)
+
+### 曲线筛选
+
+![按目标筛选延迟曲线](docs/screenshots/series-filter.png)
+
 ## 依赖
 
 - `luci-base`
