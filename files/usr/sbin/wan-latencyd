@@ -1,4 +1,6 @@
 #!/usr/bin/lua
+-- SPDX-License-Identifier: GPL-2.0-only
+-- Copyright (C) 2026 xiaokeikei
 package.path = "/usr/lib/lua/?.lua;" .. package.path
 local wl = require "wanlatency"
 local ok_nixio, nixio = pcall(require, "nixio")

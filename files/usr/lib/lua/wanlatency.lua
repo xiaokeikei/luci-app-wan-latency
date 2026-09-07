@@ -1,3 +1,5 @@
+-- SPDX-License-Identifier: GPL-2.0-only
+-- Copyright (C) 2026 xiaokeikei
 -- wanlatency.lua: per-target timeseries + target list (Lua 5.1)
 module("wanlatency", package.seeall)
 

@@ -1,10 +1,10 @@
 {
 	"luci-app-wan-latency": {
-		"description": "Grant access to WAN latency charts",
-		"read": {
+		"description": "Manage WAN latency monitoring",
+		"write": {
+			"cgi-io": [ "exec" ],
 			"file": {
-				"/tmp/wan-latency-latest.json": [ "read" ],
-				"/overlay/wan-latency/data/samples.bin": [ "read" ]
+				"/usr/libexec/wan-latency-api": [ "exec" ]
 			}
 		}
 	}

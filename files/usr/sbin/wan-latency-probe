@@ -1,4 +1,6 @@
 #!/usr/bin/lua
+-- SPDX-License-Identifier: GPL-2.0-only
+-- Copyright (C) 2026 xiaokeikei
 local nixio = require "nixio"
 local ip = arg[1]
 if not ip or not ip:match("^%d+%.%d+%.%d+%.%d+$") then os.exit(1) end

@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+<!-- SPDX-License-Identifier: GPL-2.0-only -->
+<!-- Copyright (C) 2026 xiaokeikei -->
 <html lang="zh-CN">
 <head>
 <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
@@ -122,7 +124,6 @@ canvas { width: 100%; height: 420px; display: block; cursor: crosshair; }
   </div>
   <div class="tip" id="tip"></div>
 <script>
-const API = "/cgi-bin/wan-latency";
 const PRESETS = [
   {id:"ali", name:"阿里云", host:"223.5.5.5"},
   {id:"tencent", name:"腾讯云", host:"119.29.29.29"},
@@ -290,8 +291,9 @@ function renderLegend(){
 }
 
 async function api(qs){
-  const res = await fetch(API + "?" + qs, {cache:"no-store"});
-  return res.json();
+  if (!window.parent || typeof window.parent.wanLatencyApi !== "function")
+    throw new Error("请从已登录的 LuCI 公网延迟页面访问");
+  return window.parent.wanLatencyApi(qs);
 }
 
 async function addTarget(name, host){

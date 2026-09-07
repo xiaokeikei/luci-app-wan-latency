@@ -1,4 +1,6 @@
 #!/usr/bin/lua
+-- SPDX-License-Identifier: GPL-2.0-only
+-- Copyright (C) 2026 xiaokeikei
 package.path = "/usr/lib/lua/?.lua;" .. package.path
 local wl = require "wanlatency"
 wl.load_paths()
@@ -19,23 +21,15 @@ local function qs_map(q)
 end
 
 local function read_input()
-  local m = qs_map(os.getenv("QUERY_STRING") or "")
-  local cl = tonumber(os.getenv("CONTENT_LENGTH") or "0") or 0
-  if cl > 0 and cl < 8192 then
-    local body = io.read(cl) or ""
-    local p = qs_map(body)
-    for k, v in pairs(p) do m[k] = v end
-  end
-  return m
+  -- This program is intentionally CLI-only. LuCI invokes it through
+  -- authenticated cgi-io/file ACLs and passes one URL-encoded argument.
+  local input = arg and arg[1] or ""
+  if #input > 8192 then return {} end
+  return qs_map(input)
 end
 
 local function send(body)
-  io.write("Status: 200 OK\r\n")
-  io.write("Content-Type: application/json; charset=utf-8\r\n")
-  io.write("Cache-Control: no-store\r\n")
-  io.write("Access-Control-Allow-Origin: *\r\n")
-  io.write("\r\n")
-  io.write(body)
+  io.write(body, "\n")
 end
 
 local function file_size(path)
