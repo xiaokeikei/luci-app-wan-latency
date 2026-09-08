@@ -78,7 +78,7 @@ make package/luci-app-wan-latency/compile V=s
 将 `.ipk` 上传到路由器后执行：
 
 ```sh
-opkg install ./luci-app-wan-latency_1.1.0-1_all.ipk
+opkg install ./luci-app-wan-latency_1.2.0-1_all.ipk
 ```
 
 ### 自解压安装器
@@ -86,8 +86,8 @@ opkg install ./luci-app-wan-latency_1.1.0-1_all.ipk
 无法使用软件包管理器安装本地包时，可以使用 `.run`。它不会覆盖已有的 `/etc/config/wan-latency`、目标列表和历史数据：
 
 ```sh
-chmod +x luci-app-wan-latency-1.1.0-1.run
-./luci-app-wan-latency-1.1.0-1.run
+chmod +x luci-app-wan-latency-1.2.0-1.run
+./luci-app-wan-latency-1.2.0-1.run
 ```
 
 `.run` 不会自动联网安装依赖；缺少依赖时会列出需要执行的 `opkg install` 命令。

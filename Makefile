@@ -62,7 +62,10 @@ define Package/luci-app-wan-latency/postinst
 [ -n "$${IPKG_INSTROOT}" ] || {
 	/etc/init.d/wan-latency enable
 	/etc/init.d/wan-latency restart
+	rm -f /www/cgi-bin/wan-latency
 	rm -f /tmp/luci-indexcache /tmp/luci-modulecache/* 2>/dev/null
+	/etc/init.d/rpcd restart
+	/etc/init.d/uhttpd reload
 }
 exit 0
 endef
