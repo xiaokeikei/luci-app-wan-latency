@@ -1,4 +1,4 @@
-# luci-app-wan-latency — OpenWrt WAN 延迟监控插件
+# luci-app-wan-latency — OpenWrt WAN 公网延迟监控插件
 
 ## v1.2.0
 
