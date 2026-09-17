@@ -1,5 +1,7 @@
 *.ipk
 *.apk
+*.run
+dist/
 bin/
 build_dir/
 staging_dir/

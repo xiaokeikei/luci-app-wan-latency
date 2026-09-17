@@ -1,5 +1,17 @@
 # luci-app-wan-latency — OpenWrt WAN 公网延迟监控插件
 
+## v1.3.0
+
+- 新增可选的 HigoOS 原生界面扩展包。
+- 在 HigoOS「其他设置」中显示实时公网延迟卡片，每 5 秒自动刷新。
+- 通用主包与 HigoOS 集成包完全拆分，不影响其他 OpenWrt 类系统。
+- 一键 `.run` 安装器会自动识别 HigoOS；普通系统只安装通用版。
+- 完整历史曲线、统计、目标管理和 CSV 导出仍由经过鉴权的 LuCI 页面提供。
+
+### HigoOS 原生面板
+
+![HigoOS 公网延迟原生面板](docs/screenshots/higoos-native-panel.png)
+
 ## v1.2.0
 
 - 所有 API 请求通过 LuCI 已认证的 `cgi-io` RPC 桥接，不再暴露匿名 CGI 接口。
@@ -53,7 +65,8 @@ option loss_alert_consecutive '3'
 
 | 系统 | 版本 | 内核 | 架构 | 状态 |
 |---|---|---|---|---|
-| iStoreOS | 24.10.8 (2026073111) | 6.6.144 | x86_64 | 已测试原始功能；鉴权改造待设备回归测试 |
+| iStoreOS | 24.10.8 (2026073111) | 6.6.144 | x86_64 | 通用 LuCI 功能 |
+| Hiveton HigoOS H5000M | 1.26.04.29.09 | 6.6.94 | aarch64 | 通用功能及 HigoOS 原生面板 |
 
 其他 OpenWrt / iStoreOS 版本尚未验证，欢迎提交测试结果。
 
@@ -78,19 +91,27 @@ make package/luci-app-wan-latency/compile V=s
 将 `.ipk` 上传到路由器后执行：
 
 ```sh
-opkg install ./luci-app-wan-latency_1.2.0-1_all.ipk
+opkg install ./luci-app-wan-latency_1.3.0-1_all.ipk
 ```
+
+HigoOS 可继续安装可选集成扩展：
+
+```sh
+opkg install ./luci-app-wan-latency-higoos_1.3.0-1_all.ipk
+```
+
+普通 OpenWrt、ImmortalWrt 和 iStoreOS 不需要安装 HigoOS 扩展包。
 
 ### 自解压安装器
 
 无法使用软件包管理器安装本地包时，可以使用 `.run`。它不会覆盖已有的 `/etc/config/wan-latency`、目标列表和历史数据：
 
 ```sh
-chmod +x luci-app-wan-latency-1.2.0-1.run
-./luci-app-wan-latency-1.2.0-1.run
+chmod +x luci-app-wan-latency-1.3.0-1.run
+./luci-app-wan-latency-1.3.0-1.run
 ```
 
-`.run` 不会自动联网安装依赖；缺少依赖时会列出需要执行的 `opkg install` 命令。
+`.run` 不会自动联网安装依赖；缺少依赖时会列出需要执行的 `opkg install` 命令。它会自动识别 HigoOS，并只在匹配时安装原生界面扩展。
 
 OpenWrt 25.12 及以后使用 `.apk` 的系统尚未完成实机或官方 SDK 验证，因此当前 Release 不提供未经验证的 `.apk`。
 

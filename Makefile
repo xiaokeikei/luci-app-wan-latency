@@ -4,7 +4,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-wan-latency
-PKG_VERSION:=1.2.0
+PKG_VERSION:=1.3.0
 PKG_RELEASE:=1
 PKG_MAINTAINER:=xiaokeikei
 PKG_LICENSE:=GPL-2.0-only
@@ -28,8 +28,6 @@ endef
 
 define Package/luci-app-wan-latency/conffiles
 /etc/config/wan-latency
-/etc/wan-latency/targets.conf
-/etc/wan-latency/interval
 endef
 
 define Build/Compile
