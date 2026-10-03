@@ -39,6 +39,7 @@ with tarfile.open(fileobj=io.BytesIO(members["data.tar.gz"]), mode="r:gz") as da
     paths = data.getnames()
     assert "./www/wan-latency/index.html" in paths
     assert "./usr/libexec/wan-latency-api" in paths
+    assert "./usr/lib/lua/luci/i18n/wan-latency.zh-cn.lmo" in paths
     assert not any("higo" in p.lower() for p in paths)
 
 blob = (out / runner).read_bytes()

@@ -1,0 +1,301 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Project-Id-Version: PACKAGE VERSION\n"
+"Last-Translator: xiaokeikei\n"
+"Language-Team: none\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "WAN Latency"
+msgstr ""
+
+msgid "WAN latency monitor navigation"
+msgstr ""
+
+msgid "Overview"
+msgstr ""
+
+msgid "Realtime"
+msgstr ""
+
+msgid "Latency Chart"
+msgstr ""
+
+msgid "Domestic / International"
+msgstr ""
+
+msgid "History"
+msgstr ""
+
+msgid "Targets"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Network Healthy"
+msgstr ""
+
+msgid "Current Average Latency"
+msgstr ""
+
+msgid "Average Latency"
+msgstr ""
+
+msgid "Packet Loss"
+msgstr ""
+
+msgid "Online Targets"
+msgstr ""
+
+msgid "Failing Targets"
+msgstr ""
+
+msgid "Average across all enabled targets"
+msgstr ""
+
+msgid "Current Latency"
+msgstr ""
+
+msgid "Latest collected sample"
+msgstr ""
+
+msgid "Domestic"
+msgstr ""
+
+msgid "International"
+msgstr ""
+
+msgid "Average latency of domestic targets"
+msgstr ""
+
+msgid "Average latency of international targets"
+msgstr ""
+
+msgid "Collection Status"
+msgstr ""
+
+msgid "Presets"
+msgstr ""
+
+msgid "Alibaba Cloud"
+msgstr ""
+
+msgid "Tencent Cloud"
+msgstr ""
+
+msgid "Name (optional)"
+msgstr ""
+
+msgid "IP or hostname, e.g. 8.8.8.8"
+msgstr ""
+
+msgid "Auto"
+msgstr ""
+
+msgid "Auto-classify"
+msgstr ""
+
+msgid "Add Target"
+msgstr ""
+
+msgid "Probe interval"
+msgstr ""
+
+msgid "Per-target timeout"
+msgstr ""
+
+msgid "Alert threshold (ms)"
+msgstr ""
+
+msgid "Data retention (days)"
+msgstr ""
+
+msgid "1 s"
+msgstr ""
+
+msgid "2 s"
+msgstr ""
+
+msgid "3 s"
+msgstr ""
+
+msgid "5 s"
+msgstr ""
+
+msgid "10 s"
+msgstr ""
+
+msgid "15 s"
+msgstr ""
+
+msgid "30 s"
+msgstr ""
+
+msgid "1 minute"
+msgstr ""
+
+msgid "2 minutes"
+msgstr ""
+
+msgid "5 minutes"
+msgstr ""
+
+msgid "15 min"
+msgstr ""
+
+msgid "30 min"
+msgstr ""
+
+msgid "1 hour"
+msgstr ""
+
+msgid "6 hours"
+msgstr ""
+
+msgid "24 hours"
+msgstr ""
+
+msgid "7 days"
+msgstr ""
+
+msgid "30 days"
+msgstr ""
+
+msgid "1 year"
+msgstr ""
+
+msgid "to"
+msgstr ""
+
+msgid "Apply"
+msgstr ""
+
+msgid "Follow Live"
+msgstr ""
+
+msgid "Export CSV"
+msgstr ""
+
+msgid "Visible series"
+msgstr ""
+
+msgid "All"
+msgstr ""
+
+msgid "None"
+msgstr ""
+
+msgid "Invert"
+msgstr ""
+
+msgid "Loading…"
+msgstr ""
+
+msgid "Failed"
+msgstr ""
+
+msgid "Unknown"
+msgstr ""
+
+msgid "Added: %s"
+msgstr ""
+
+msgid "No probe targets yet"
+msgstr ""
+
+msgid "Use a preset above or enter an address"
+msgstr ""
+
+msgid "Drag to reorder"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Loss"
+msgstr ""
+
+msgid "jitter"
+msgstr ""
+
+msgid "Toggle series above · drag cards to reorder · drag the chart to zoom, double-click to reset, scroll to zoom"
+msgstr ""
+
+msgid "Please open this page from an authenticated LuCI session"
+msgstr ""
+
+msgid "Failed to add target"
+msgstr ""
+
+msgid "Samples: %s"
+msgstr ""
+
+msgid "Error"
+msgstr ""
+
+msgid "OK"
+msgstr ""
+
+msgid "Last updated"
+msgstr ""
+
+msgid "Waiting for data"
+msgstr ""
+
+msgid "Collection Error"
+msgstr ""
+
+msgid "Realtime data loaded; loading history…"
+msgstr ""
+
+msgid "Failed to load realtime data"
+msgstr ""
+
+msgid "Failed to load history"
+msgstr ""
+
+msgid "Failed to load settings"
+msgstr ""
+
+msgid "Collection appears to have stopped"
+msgstr ""
+
+msgid "· %s raw points · step %s s"
+msgstr ""
+
+msgid "Collecting · %s targets · probe every %s s · %s raw points · step %s s · %s to %s"
+msgstr ""
+
+msgid "Stored %s points / %s MB, kept for %s days"
+msgstr ""
+
+msgid "No data yet. Add a target and the chart will appear here"
+msgstr ""
+
+msgid "All series are hidden. Click the colored labels above to select which to show"
+msgstr ""
+
+msgid "local router storage"
+msgstr ""
+
+msgid "Probing through the WAN interface. One point every %s seconds; data stored in %s. Targets can be added freely; Alibaba Cloud, Tencent Cloud and Steam are one-click presets."
+msgstr ""
+
+msgid "Invalid address; only an IP or hostname is allowed"
+msgstr ""
+
+msgid "Target limit reached"
+msgstr ""
+
+msgid "This address is already in the list"
+msgstr ""
+
+msgid "Unsupported setting"
+msgstr ""
+
+msgid "Configuration is busy, please try again later"
+msgstr ""

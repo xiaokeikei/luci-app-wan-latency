@@ -1,6 +1,6 @@
 {
 	"admin/status/wan_latency": {
-		"title": "公网延迟",
+		"title": "WAN Latency",
 		"order": 8,
 		"action": {
 			"type": "view",

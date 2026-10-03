@@ -104,8 +104,8 @@ ROLLUP_PATH = DATA_DIR .. "/rollup_1m.bin"
 PALETTE = {"#ff7a1a","#2ec7ff","#8bdc63","#f6c445","#c084fc","#fb7185","#22d3ee","#a3e635","#f97316","#60a5fa","#e879f9","#34d399"}
 
 PRESETS = {
-  {id="ali", name="阿里云", host="223.5.5.5", color="#ff7a1a", region="domestic"},
-  {id="tencent", name="腾讯云", host="119.29.29.29", color="#2ec7ff", region="domestic"},
+  {id="ali", name="Alibaba Cloud", host="223.5.5.5", color="#ff7a1a", region="domestic"},
+  {id="tencent", name="Tencent Cloud", host="119.29.29.29", color="#2ec7ff", region="domestic"},
   {id="steam", name="Steam", host="store.steampowered.com", color="#8bdc63", region="foreign"}
 }
 
@@ -471,7 +471,7 @@ function with_target_lock(callback)
     if ok_nixio and nixio.nanosleep then pcall(nixio.nanosleep, 0, 100000000)
     else os.execute("sleep 1") end
   end
-  if not acquired then return false, "配置正忙，请稍后重试" end
+  if not acquired then return false, "Configuration is busy, please try again later" end
   local ok, a, b = pcall(callback)
   os.execute("rmdir '" .. lock .. "' 2>/dev/null")
   if not ok then return false, tostring(a) end

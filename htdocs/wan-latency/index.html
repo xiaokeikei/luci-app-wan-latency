@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <!-- SPDX-License-Identifier: GPL-2.0-only -->
 <!-- Copyright (C) 2026 xiaokeikei -->
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>公网延迟</title>
+<title data-i18n>WAN Latency</title>
 <style>
 :root {
   --bg: #0f1724;
@@ -68,7 +68,7 @@ canvas { width: 100%; height: 420px; display: block; cursor: crosshair; }
 @media (max-width: 900px) { canvas { height: 320px; } }
 
 /* Light monitoring dashboard inspired by the supplied reference */
-:root { --bg:#eef4f7; --panel:rgba(255,255,255,.90); --line:#e1e9ee; --text:#26313b; --muted:#84909b; --green:#27a55d; --blue:#159bd1; --yellow:#e7a400; --loss:#e35353; }
+:root { --bg:#eef4f7; --panel:rgba(255,255,255,.90); --panel2:#ffffff; --line:#e1e9ee; --text:#26313b; --muted:#84909b; --green:#27a55d; --blue:#159bd1; --yellow:#e7a400; --loss:#e35353; --accent:#4d7fd6; --chart-bg:#fbfdfe; --chart-grid:#e4ecef; --chart-ink:#8ea0b8; }
 html,body { background:linear-gradient(135deg,#eef6f8 0%,#f8fafb 52%,#eaf1f4 100%); color:var(--text); }
 body { max-width:1280px; margin:0 auto; padding:18px 32px 36px; }
 .topnav { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:18px; }
@@ -92,46 +92,79 @@ body { max-width:1280px; margin:0 auto; padding:18px 32px 36px; }
 .region-select { min-width:120px; } .region-badge { display:inline-block; margin-left:5px; border-radius:999px; padding:2px 7px; font-size:10px; background:#edf7ff; color:#2580b1; }
 @media(max-width:900px){body{padding:14px}.overview-grid{grid-template-columns:repeat(2,1fr)}.cards{grid-template-columns:repeat(2,minmax(220px,1fr))}.settings{grid-template-columns:repeat(2,1fr)}.hero-stats{margin-left:0}}
 @media(max-width:600px){.overview-grid,.cards,.settings{grid-template-columns:1fr}.hero{align-items:flex-start}.hero-stats{gap:15px}}
+
+/* Dark palette: applied by syncTheme() when the embedding LuCI theme is dark */
+html.theme-dark { --bg:#0f1724; --panel:#172033; --panel2:#101a2b; --line:#263247; --text:#e8eef8; --muted:#8ea0b8; --green:#3ecf8e; --blue:#6db3f2; --yellow:#e7a400; --loss:#ff5d73; --accent:#4d7fd6; --chart-bg:#101a2b; --chart-grid:#263247; --chart-ink:#8ea0b8; }
+html.theme-dark, html.theme-dark body { background:var(--bg); color:var(--text); }
+html.theme-dark .topnav .brand { color:var(--text); }
+html.theme-dark .navitem { color:var(--muted); }
+html.theme-dark .navitem:hover { background:var(--panel2); color:var(--text); }
+html.theme-dark .navitem.active { background:var(--panel2); color:var(--text); box-shadow:none; }
+html.theme-dark .hero { background:var(--panel); border-color:var(--line); box-shadow:none; }
+html.theme-dark .hero-stat b { color:var(--text); }
+html.theme-dark .overview-card, html.theme-dark .card, html.theme-dark .chart-wrap, html.theme-dark .settings { background:var(--panel); border-color:var(--line); box-shadow:none; }
+html.theme-dark .overview-card .label, html.theme-dark .setting { color:var(--muted); }
+html.theme-dark .toolbar, html.theme-dark .addbar, html.theme-dark .series-bar { background:var(--panel); border-color:var(--line); }
+html.theme-dark .btn, html.theme-dark input, html.theme-dark select { background:var(--panel2); color:var(--text); border-color:var(--line); }
+html.theme-dark .btn.active { background:#2a4d86; border-color:var(--accent); color:var(--text); }
+html.theme-dark .btn.preset { border-color:var(--line); }
+html.theme-dark .chip { background:var(--panel2); border-color:var(--line); }
+html.theme-dark .chip.on { background:#2a4d86; border-color:var(--accent); }
+html.theme-dark .method { border-color:var(--line); }
+html.theme-dark .region-badge { background:#16294a; color:#7aa5d8; }
+html.theme-dark .tip { background:#0c1320; }
+html.theme-dark ::placeholder { color:var(--muted); }
+
+/* Translucent panels when the parent theme paints a wallpaper/background image (e.g. kucat, argon) */
+html.theme-transparent, html.theme-transparent body { background:transparent; }
+html.theme-transparent:not(.theme-dark) { --panel:rgba(255,255,255,.55); --panel2:rgba(255,255,255,.55); --chart-bg:rgba(255,255,255,.5); }
+html.theme-transparent.theme-dark { --panel:rgba(23,32,51,.6); --panel2:rgba(16,26,43,.55); --chart-bg:rgba(16,26,43,.5); }
+html.theme-transparent.theme-dark input, html.theme-transparent.theme-dark select, html.theme-transparent.theme-dark textarea { color-scheme:dark; }
+html.theme-transparent .navitem.active, html.theme-transparent .hero, html.theme-transparent .overview-card,
+html.theme-transparent .card, html.theme-transparent .chart-wrap, html.theme-transparent .settings,
+html.theme-transparent .toolbar, html.theme-transparent .addbar, html.theme-transparent .series-bar {
+  -webkit-backdrop-filter:blur(14px) saturate(1.3); backdrop-filter:blur(14px) saturate(1.3);
+}
 </style>
 </head>
 <body>
-  <nav class="topnav" aria-label="公网延迟监控导航"><div class="brand">公网延迟监控</div><button type="button" class="navitem active" data-target="overviewSection">概览</button><button type="button" class="navitem" data-target="realtimeSection">实时监控</button><button type="button" class="navitem" data-target="chartSection">延迟曲线</button><button type="button" class="navitem" data-target="regionSection">国内 / 国外</button><button type="button" class="navitem" data-target="historySection">历史数据</button><button type="button" class="navitem" data-target="targetsSection">目标管理</button><button type="button" class="navitem" data-target="settingsSection">设置</button></nav>
-  <section class="hero" id="overviewSection"><div class="health" id="healthIcon">✓</div><div><h1 id="healthTitle">网络正常</h1><div class="sub" id="pageSub">从 iStoreOS WAN 经 CPE 探测。探测间隔与存储位置按实际配置显示。</div></div><div class="hero-stats"><div class="hero-stat"><b id="heroAvg">--</b><span>当前平均延迟</span></div><div class="hero-stat"><b id="heroLoss">--</b><span>丢包率</span></div><div class="hero-stat"><b id="heroOnline">0</b><span>在线目标</span></div><div class="hero-stat"><b id="heroBad">0</b><span>异常目标</span></div></div></section>
-  <section class="overview-grid" id="regionSection"><div class="overview-card"><div class="label">平均延迟</div><div class="big" id="ovAvg">-- ms</div><div class="small">所有已启用目标的平均值</div></div><div class="overview-card"><div class="label">当前延迟</div><div class="big" id="ovCur">-- ms</div><div class="small">最近一次采集结果</div></div><div class="overview-card"><div class="label">丢包率</div><div class="big" id="ovLoss">--%</div><div class="small" id="ovLossDetail">样本数：--</div></div><div class="overview-card"><div class="label">国内网络</div><div class="big" id="ovDomestic">-- ms</div><div class="small">国内目标平均延迟</div></div><div class="overview-card"><div class="label">国外网络</div><div class="big" id="ovForeign">-- ms</div><div class="small">国外目标平均延迟</div></div><div class="overview-card"><div class="label">采集状态</div><div class="big" id="ovLast">--</div><div class="small" id="ovLastDetail">等待数据</div></div></section>
+  <nav class="topnav" aria-label="WAN latency monitor navigation" data-i18n-aria><div class="brand" data-i18n>WAN Latency</div><button type="button" class="navitem active" data-target="overviewSection" data-i18n>Overview</button><button type="button" class="navitem" data-target="realtimeSection" data-i18n>Realtime</button><button type="button" class="navitem" data-target="chartSection" data-i18n>Latency Chart</button><button type="button" class="navitem" data-target="regionSection" data-i18n>Domestic / International</button><button type="button" class="navitem" data-target="historySection" data-i18n>History</button><button type="button" class="navitem" data-target="targetsSection" data-i18n>Targets</button><button type="button" class="navitem" data-target="settingsSection" data-i18n>Settings</button></nav>
+  <section class="hero" id="overviewSection"><div class="health" id="healthIcon">✓</div><div><h1 id="healthTitle">Network Healthy</h1><div class="sub" id="pageSub">Probing through the WAN interface. Probe interval and storage location follow the current configuration.</div></div><div class="hero-stats"><div class="hero-stat"><b id="heroAvg">--</b><span data-i18n>Current Average Latency</span></div><div class="hero-stat"><b id="heroLoss">--</b><span data-i18n>Packet Loss</span></div><div class="hero-stat"><b id="heroOnline">0</b><span data-i18n>Online Targets</span></div><div class="hero-stat"><b id="heroBad">0</b><span data-i18n>Failing Targets</span></div></div></section>
+  <section class="overview-grid" id="regionSection"><div class="overview-card"><div class="label" data-i18n>Average Latency</div><div class="big" id="ovAvg">-- ms</div><div class="small" data-i18n>Average across all enabled targets</div></div><div class="overview-card"><div class="label" data-i18n>Current Latency</div><div class="big" id="ovCur">-- ms</div><div class="small" data-i18n>Latest collected sample</div></div><div class="overview-card"><div class="label" data-i18n>Packet Loss</div><div class="big" id="ovLoss">--%</div><div class="small" id="ovLossDetail">Samples: --</div></div><div class="overview-card"><div class="label" data-i18n>Domestic</div><div class="big" id="ovDomestic">-- ms</div><div class="small" data-i18n>Average latency of domestic targets</div></div><div class="overview-card"><div class="label" data-i18n>International</div><div class="big" id="ovForeign">-- ms</div><div class="small" data-i18n>Average latency of international targets</div></div><div class="overview-card"><div class="label" data-i18n>Collection Status</div><div class="big" id="ovLast">--</div><div class="small" id="ovLastDetail">Waiting for data</div></div></section>
   <div class="addbar" id="targetsSection">
-    <span class="sub" style="margin:0">预设</span>
-    <button class="btn preset" id="p_ali">+ 阿里云</button>
-    <button class="btn preset" id="p_tencent">+ 腾讯云</button>
+    <span class="sub" style="margin:0" data-i18n>Presets</span>
+    <button class="btn preset" id="p_ali">+ Alibaba Cloud</button>
+    <button class="btn preset" id="p_tencent">+ Tencent Cloud</button>
     <button class="btn preset" id="p_steam">+ Steam</button>
-    <input id="newName" placeholder="名称，可空">
-    <input id="newHost" placeholder="IP 或域名，例如 8.8.8.8">
-    <select id="newRegion" class="region-select"><option value="auto">自动分类</option><option value="domestic">国内</option><option value="foreign">国外</option></select>
-    <button class="btn active" id="addBtn">添加目标</button>
+    <input id="newName" placeholder="Name (optional)" data-i18n-placeholder>
+    <input id="newHost" placeholder="IP or hostname, e.g. 8.8.8.8" data-i18n-placeholder>
+    <select id="newRegion" class="region-select"><option value="auto" data-i18n>Auto-classify</option><option value="domestic" data-i18n>Domestic</option><option value="foreign" data-i18n>International</option></select>
+    <button class="btn active" id="addBtn" data-i18n>Add Target</button>
     <span class="err" id="addErr"></span>
   </div>
-  <section class="settings" id="settingsSection"><label class="setting">探测间隔<select id="pingInterval" class="btn"><option value="2">2 秒</option><option value="5">5 秒</option><option value="10">10 秒</option><option value="15">15 秒</option><option value="30">30 秒</option><option value="60">1 分钟</option><option value="120">2 分钟</option><option value="300">5 分钟</option></select></label><label class="setting">单目标超时<select id="probeTimeout" class="btn"><option value="1">1 秒</option><option value="2">2 秒</option><option value="3">3 秒</option><option value="5">5 秒</option><option value="10">10 秒</option></select></label><label class="setting">告警阈值（毫秒）<input id="latencyThreshold" class="btn" type="number" min="1" max="60000" value="150"></label><label class="setting">数据保留天数<input id="retainDays" class="btn" type="number" min="1" max="3660" value="366"></label></section>
+  <section class="settings" id="settingsSection"><label class="setting"><span data-i18n>Probe interval</span><select id="pingInterval" class="btn"><option value="2" data-i18n>2 s</option><option value="5" data-i18n>5 s</option><option value="10" data-i18n>10 s</option><option value="15" data-i18n>15 s</option><option value="30" data-i18n>30 s</option><option value="60" data-i18n>1 minute</option><option value="120" data-i18n>2 minutes</option><option value="300" data-i18n>5 minutes</option></select></label><label class="setting"><span data-i18n>Per-target timeout</span><select id="probeTimeout" class="btn"><option value="1" data-i18n>1 s</option><option value="2" data-i18n>2 s</option><option value="3" data-i18n>3 s</option><option value="5" data-i18n>5 s</option><option value="10" data-i18n>10 s</option></select></label><label class="setting"><span data-i18n>Alert threshold (ms)</span><input id="latencyThreshold" class="btn" type="number" min="1" max="60000" value="150"></label><label class="setting"><span data-i18n>Data retention (days)</span><input id="retainDays" class="btn" type="number" min="1" max="3660" value="366"></label></section>
   <div class="cards" id="realtimeSection"></div>
   <div class="toolbar" id="historySection">
-    <button class="btn" data-range="900">15分钟</button>
-    <button class="btn" data-range="1800">30分钟</button>
-    <button class="btn active" data-range="3600">1小时</button>
-    <button class="btn" data-range="21600">6小时</button>
-    <button class="btn" data-range="86400">24小时</button>
-    <button class="btn" data-range="604800">7天</button>
-    <button class="btn" data-range="2592000">30天</button>
-    <button class="btn" data-range="31536000">1年</button>
+    <button class="btn" data-range="900" data-i18n>15 min</button>
+    <button class="btn" data-range="1800" data-i18n>30 min</button>
+    <button class="btn active" data-range="3600" data-i18n>1 hour</button>
+    <button class="btn" data-range="21600" data-i18n>6 hours</button>
+    <button class="btn" data-range="86400" data-i18n>24 hours</button>
+    <button class="btn" data-range="604800" data-i18n>7 days</button>
+    <button class="btn" data-range="2592000" data-i18n>30 days</button>
+    <button class="btn" data-range="31536000" data-i18n>1 year</button>
     <input id="fromTime" type="datetime-local">
-    <span class="sub" style="margin:0">至</span>
+    <span class="sub" style="margin:0" data-i18n>to</span>
     <input id="toTime" type="datetime-local">
-    <button class="btn" id="applyCustom">筛选</button>
-    <button class="btn" id="liveBtn">实时跟随</button>
-    <button class="btn" id="exportCsv">导出 CSV</button>
+    <button class="btn" id="applyCustom" data-i18n>Apply</button>
+    <button class="btn" id="liveBtn" data-i18n>Follow Live</button>
+    <button class="btn" id="exportCsv" data-i18n>Export CSV</button>
   </div>
   <div class="series-bar" id="seriesBar">
-    <span class="sub" style="margin:0">显示曲线</span>
-    <button class="btn" id="seriesAll">全选</button>
-    <button class="btn" id="seriesNone">清空</button>
-    <button class="btn" id="seriesInvert">反选</button>
+    <span class="sub" style="margin:0" data-i18n>Visible series</span>
+    <button class="btn" id="seriesAll" data-i18n>All</button>
+    <button class="btn" id="seriesNone" data-i18n>None</button>
+    <button class="btn" id="seriesInvert" data-i18n>Invert</button>
     <span class="series-count" id="seriesCount"></span>
     <span class="series-filters" id="seriesFilters"></span>
   </div>
@@ -140,14 +173,106 @@ body { max-width:1280px; margin:0 auto; padding:18px 32px 36px; }
     <div class="legend" id="legend"></div>
   </div>
   <div class="foot">
-    <div id="statusLine">正在加载…</div>
+    <div id="statusLine" data-i18n>Loading…</div>
     <div id="storeLine"></div>
   </div>
   <div class="tip" id="tip"></div>
 <script>
+function L(s){
+  try {
+    var p = window.parent;
+    if (p && p !== window && typeof p._ === "function") return p._(s);
+  } catch (e) {}
+  return s;
+}
+function T(s){
+  var a = arguments, i = 0;
+  return L(s).replace(/%s/g, function(){ return String(a[++i]); });
+}
+(function applyI18n(){
+  document.querySelectorAll("[data-i18n]").forEach(function(el){ el.textContent = L(el.textContent); });
+  document.querySelectorAll("[data-i18n-title]").forEach(function(el){ el.title = L(el.title); });
+  document.querySelectorAll("[data-i18n-placeholder]").forEach(function(el){ el.placeholder = L(el.placeholder); });
+  document.querySelectorAll("[data-i18n-aria]").forEach(function(el){ el.setAttribute("aria-label", L(el.getAttribute("aria-label") || "")); });
+})();
+function cssVar(name, fallback){
+  try {
+    var v = window.getComputedStyle && window.getComputedStyle(document.documentElement).getPropertyValue(name);
+    return (v && v.trim()) || fallback;
+  } catch (e) { return fallback; }
+}
+function syncTheme(){
+  var dark = null, transparent = false;
+  try {
+    var pw = window.parent;
+    if (pw && pw !== window && pw.document && pw.getComputedStyle) {
+      var pb = pw.document.body, pe = pw.document.documentElement;
+      var lum = function(m){ return (0.2126 * m[1] + 0.7152 * m[2] + 0.0722 * m[3]) / 255; };
+      var rgb = function(c){ return String(c || "").match(/rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)(?:[\s,/]+([\d.]+))?/); };
+      var dt = (pb && typeof pb.getAttribute === "function" && pb.getAttribute("data-theme"))
+        || (pe && typeof pe.getAttribute === "function" && pe.getAttribute("data-theme"));
+      if (dt === "dark" || dt === "light") dark = (dt === "dark");
+      [ pb, pe ].forEach(function(el){
+        if (!el) return;
+        var st = pw.getComputedStyle(el);
+        if (el === pb && st.backgroundImage && st.backgroundImage !== "none") transparent = true;
+        if (dark === null) {
+          var m = rgb(st.backgroundColor);
+          if (m && (m[4] === undefined || parseFloat(m[4]) > 0.05)) dark = lum(m) < 0.45;
+        }
+      });
+      try {
+        [ "::before", "::after" ].forEach(function(ps){
+          var b = pb && pw.getComputedStyle(pb, ps).backgroundImage;
+          if (b && b !== "none") transparent = true;
+        });
+        [].slice.call((pb && pb.children) || []).forEach(function(ch){
+          var s2 = pw.getComputedStyle(ch);
+          if (s2.backgroundImage && s2.backgroundImage !== "none" && (s2.position === "fixed" || s2.position === "absolute")) transparent = true;
+        });
+      } catch (e2) {}
+      try {
+        for (var fe = window.frameElement; fe && fe !== pb; fe = fe.parentElement) {
+          var fs = pw.getComputedStyle(fe);
+          if (fs.backgroundImage && fs.backgroundImage !== "none") { transparent = true; break; }
+        }
+      } catch (e3) {}
+      if (dark === null && pb) {
+        var tc = rgb(pw.getComputedStyle(pb).color);
+        if (tc) dark = lum(tc) > 0.6;
+      }
+    }
+  } catch (e) {}
+  if (dark === null) {
+    try { dark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches); } catch (e) {}
+  }
+  var root = document.documentElement;
+  if (!root || !root.classList) return;
+  var was = root.classList.contains("theme-dark") || root.classList.contains("theme-transparent");
+  root.classList.toggle("theme-dark", !!dark);
+  root.classList.toggle("theme-transparent", transparent);
+  try { root.style.colorScheme = transparent ? "normal" : (dark ? "dark" : "light"); } catch (e) {}
+  var is = root.classList.contains("theme-dark") || root.classList.contains("theme-transparent");
+  if (was !== is) draw();
+}
+function initTheme(){
+  syncTheme();
+  try {
+    var pw = window.parent;
+    if (pw && pw !== window && pw.document && pw.MutationObserver) {
+      var mo = new pw.MutationObserver(syncTheme);
+      mo.observe(pw.document.documentElement, { attributes: true, attributeFilter: ["class", "style"] });
+      if (pw.document.body) mo.observe(pw.document.body, { attributes: true, attributeFilter: ["class", "style"] });
+    }
+  } catch (e) {}
+  try {
+    var mq = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
+    if (mq && mq.addEventListener) mq.addEventListener("change", syncTheme);
+  } catch (e) {}
+}
 const PRESETS = [
-  {id:"ali", name:"阿里云", host:"223.5.5.5"},
-  {id:"tencent", name:"腾讯云", host:"119.29.29.29"},
+  {id:"ali", name:"Alibaba Cloud", host:"223.5.5.5"},
+  {id:"tencent", name:"Tencent Cloud", host:"119.29.29.29"},
   {id:"steam", name:"Steam", host:"store.steampowered.com"}
 ];
 const canvas = document.getElementById("chart");
@@ -187,7 +312,7 @@ function fmtMs(v){ return (v==null || isNaN(v)) ? "--" : Number(v).toFixed(1); }
 function esc(v){
   return String(v == null ? "" : v).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
 }
-function methodLabel(v){ return ({icmp:"ICMP",tcp443:"TCP 443",tcp80:"TCP 80",dns:"DNS",failed:"失败",unknown:"未知"})[v] || String(v || "未知"); }
+function methodLabel(v){ return ({icmp:"ICMP",tcp443:"TCP 443",tcp80:"TCP 80",dns:"DNS",failed:L("Failed"),unknown:L("Unknown")})[v] || String(v || L("Unknown")); }
 
 function updatePresetButtons(){
   const ids = (data && data.targets || []).map(t => t.id);
@@ -196,7 +321,7 @@ function updatePresetButtons(){
     const btn = document.getElementById("p_" + p.id);
     const on = ids.includes(p.id) || hosts.includes(p.host);
     btn.classList.toggle("disabled", on);
-    btn.textContent = on ? ("已有 " + p.name) : ("+ " + p.name);
+    btn.textContent = on ? T("Added: %s", L(p.name)) : ("+ " + L(p.name));
   });
 }
 
@@ -218,7 +343,7 @@ function renderCards(){
   const latestMap = {};
   latestItems.forEach(it => { latestMap[it.id] = it; });
   if (!targets.length) {
-    box.innerHTML = '<div class="card"><div class="name">还没有探测目标</div><div class="meta">点上面的预设，或自己填一个地址</div></div>';
+    box.innerHTML = '<div class="card"><div class="name">' + L("No probe targets yet") + '</div><div class="meta">' + L("Use a preset above or enter an address") + '</div></div>';
     return;
   }
   box.innerHTML = targets.map(t => {
@@ -226,12 +351,12 @@ function renderCards(){
     const cur = (latestMap[t.id] && latestMap[t.id].rtt != null) ? latestMap[t.id].rtt : null;
     const liveItem = latestMap[t.id] || {};
     const ip = liveItem.ip && liveItem.ip !== t.host ? liveItem.ip : "";
-    const region = t.region === "domestic" ? "国内" : (t.region === "foreign" ? "国外" : "自动");
-    return '<div class="card" draggable="true" data-id="' + t.id + '" title="拖动可调整顺序">' +
-      '<div class="name"><span><span class="dot" style="background:' + esc(t.color) + '"></span>' + esc(t.name) + ' ' + esc(t.host) + '<span class="region-badge">' + region + '</span>' + (ip ? " / " + esc(ip) : "") + '<span class="method">' + esc(methodLabel(liveItem.method || st.method)) + '</span></span>' +
-      '<span><span>' + "丢包 " + fmtMs(st.loss) + '%</span> <button class="xbtn" data-del="' + t.id + '" title="删除">×</button></span></div>' +
+    const region = t.region === "domestic" ? L("Domestic") : (t.region === "foreign" ? L("International") : L("Auto"));
+    return '<div class="card" draggable="true" data-id="' + t.id + '" title="' + L("Drag to reorder") + '">' +
+      '<div class="name"><span><span class="dot" style="background:' + esc(t.color) + '"></span>' + esc(L(t.name)) + ' ' + esc(t.host) + '<span class="region-badge">' + region + '</span>' + (ip ? " / " + esc(ip) : "") + '<span class="method">' + esc(methodLabel(liveItem.method || st.method)) + '</span></span>' +
+      '<span><span>' + L("Loss") + " " + fmtMs(st.loss) + '%</span> <button class="xbtn" data-del="' + t.id + '" title="' + L("Delete") + '">×</button></span></div>' +
       '<div class="val">' + fmtMs(cur) + '<small>ms</small></div>' +
-      '<div class="meta">min/avg/max ' + fmtMs(st.min) + " / " + fmtMs(st.avg) + " / " + fmtMs(st.max) + " · 抖动 " + fmtMs(st.jitter) + " · P50/P95/P99 " + fmtMs(st.p50) + "/" + fmtMs(st.p95) + "/" + fmtMs(st.p99) + "</div></div>";
+      '<div class="meta">min/avg/max ' + fmtMs(st.min) + " / " + fmtMs(st.avg) + " / " + fmtMs(st.max) + " · " + L("jitter") + " " + fmtMs(st.jitter) + " · P50/P95/P99 " + fmtMs(st.p50) + "/" + fmtMs(st.p95) + "/" + fmtMs(st.p99) + "</div></div>";
   }).join("");
   box.querySelectorAll("[data-del]").forEach(btn => {
     btn.addEventListener("click", ev => { ev.stopPropagation(); delTarget(btn.getAttribute("data-del")); });
@@ -294,7 +419,7 @@ function renderSeriesFilters(){
   el.innerHTML = targets.map(t => {
     const on = !hidden[t.id];
     return '<label class="chip ' + (on ? "on" : "off") + '" data-sid="' + esc(t.id) + '" title="' + esc(t.host) + '">' +
-      '<span class="dot" style="background:' + esc(t.color) + '"></span>' + esc(t.name) + "</label>";
+      '<span class="dot" style="background:' + esc(t.color) + '"></span>' + esc(L(t.name)) + "</label>";
   }).join("");
   el.querySelectorAll("[data-sid]").forEach(s => {
     s.addEventListener("click", () => {
@@ -315,8 +440,8 @@ function renderLegend(){
   const targets = (data && data.targets) || [];
   el.innerHTML = targets.map(t => {
     const dim = hidden[t.id] ? "opacity:.35;" : "";
-    return '<span data-hid="' + esc(t.id) + '" style="cursor:pointer;' + dim + '"><span class="dot" style="background:' + esc(t.color) + '"></span>' + esc(t.name) + "</span>";
-  }).join("") + '<span>上方可勾选显示哪几条曲线 · 卡片可拖动排序 · 曲线拖拽缩放，双击还原，滚轮放大</span>';
+    return '<span data-hid="' + esc(t.id) + '" style="cursor:pointer;' + dim + '"><span class="dot" style="background:' + esc(t.color) + '"></span>' + esc(L(t.name)) + "</span>";
+  }).join("") + '<span>' + L("Toggle series above · drag cards to reorder · drag the chart to zoom, double-click to reset, scroll to zoom") + '</span>';
   el.querySelectorAll("[data-hid]").forEach(s => {
     s.addEventListener("click", () => {
       const id = s.getAttribute("data-hid");
@@ -328,7 +453,7 @@ function renderLegend(){
 
 async function api(qs){
   if (!window.parent || typeof window.parent.wanLatencyApi !== "function")
-    throw new Error("请从已登录的 LuCI 公网延迟页面访问");
+    throw new Error(L("Please open this page from an authenticated LuCI session"));
   return window.parent.wanLatencyApi(qs);
 }
 
@@ -336,7 +461,7 @@ async function addTarget(name, host, region){
   document.getElementById("addErr").textContent = "";
   const q = "action=add&name=" + encodeURIComponent(name || "") + "&host=" + encodeURIComponent(host || "") + "&region=" + encodeURIComponent(region || "auto");
   const r = await api(q);
-  if (!r.ok) { document.getElementById("addErr").textContent = r.error || "添加失败"; return; }
+  if (!r.ok) { document.getElementById("addErr").textContent = L(r.error || "Failed to add target"); return; }
   document.getElementById("newName").value = "";
   document.getElementById("newHost").value = "";
   await loadQuery();
@@ -363,9 +488,9 @@ function updateOverview(){
   const currentMean=avg(current), historyMean=avg(history), loss=lossN?lossSum/lossN:null;
   const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;}; const ms=v=>v==null?'--':v.toFixed(1)+' ms';
   set('heroAvg',ms(currentMean)); set('heroLoss',loss==null?'--':loss.toFixed(1)+'%'); set('heroOnline',current.length); set('heroBad',bad);
-  set('ovAvg',ms(historyMean!=null?historyMean:currentMean)); set('ovCur',ms(currentMean)); set('ovLoss',loss==null?'--%':loss.toFixed(1)+'%'); set('ovLossDetail','样本数：'+(data&&data.count||0)); set('ovDomestic',ms(avg(domestic))); set('ovForeign',ms(avg(foreign)));
-  const stale=!(data&&data.latest&&data.latest.ts)||Math.floor(Date.now()/1000)-data.latest.ts>Math.max(20,pingInterval*3); set('ovLast',stale?'异常':'正常'); set('ovLastDetail',data&&data.latest&&data.latest.ts?'最近更新 '+fmtTime(data.latest.ts):'等待数据');
-  const health=document.getElementById('healthTitle'), icon=document.getElementById('healthIcon'); if(health)health.textContent=stale?'采集异常':'网络正常'; if(icon){icon.textContent=stale?'!':'✓';icon.style.color=stale?'#e35353':'#27a55d';icon.style.borderColor=stale?'#e35353':'#27a55d';}
+  set('ovAvg',ms(historyMean!=null?historyMean:currentMean)); set('ovCur',ms(currentMean)); set('ovLoss',loss==null?'--%':loss.toFixed(1)+'%'); set('ovLossDetail',T('Samples: %s',(data&&data.count||0))); set('ovDomestic',ms(avg(domestic))); set('ovForeign',ms(avg(foreign)));
+  const stale=!(data&&data.latest&&data.latest.ts)||Math.floor(Date.now()/1000)-data.latest.ts>Math.max(20,pingInterval*3); set('ovLast',stale?L('Error'):L('OK')); set('ovLastDetail',data&&data.latest&&data.latest.ts?L('Last updated')+' '+fmtTime(data.latest.ts):L('Waiting for data'));
+  const health=document.getElementById('healthTitle'), icon=document.getElementById('healthIcon'); if(health)health.textContent=stale?L('Collection Error'):L('Network Healthy'); if(icon){icon.textContent=stale?'!':'✓';icon.style.color=stale?'#e35353':'#27a55d';icon.style.borderColor=stale?'#e35353':'#27a55d';}
 }
 
 let realtimeInFlight = false;
@@ -381,10 +506,10 @@ async function loadRealtime(){
     if(targetResult.ok&&Array.isArray(targetResult.targets)) data.targets=targetResult.targets;
     renderCards(); updateOverview(); updatePresetButtons(); updatePageSub();
     const status=document.getElementById('statusLine');
-    if(status&&status.textContent==='正在加载…'&&latest.ts) status.textContent='实时数据已加载，正在读取历史曲线…';
+    if(status&&status.textContent===L('Loading…')&&latest.ts) status.textContent=L('Realtime data loaded; loading history…');
   } catch(err) {
     const status=document.getElementById('statusLine');
-    if(status&&status.textContent==='正在加载…') status.textContent='实时数据加载失败：'+String(err&&err.message||err);
+    if(status&&status.textContent===L('Loading…')) status.textContent=L('Failed to load realtime data')+': '+String(err&&err.message||err);
   } finally { realtimeInFlight=false; }
 }
 
@@ -407,12 +532,12 @@ async function loadQuery(){
   try { response = await api("action=query&from=" + from + "&to=" + to); }
   catch(err) {
     if (requestGeneration !== queryGeneration) return;
-    document.getElementById("statusLine").textContent = '历史数据加载失败：' + String(err&&err.message||err);
+    document.getElementById("statusLine").textContent = L('Failed to load history') + ': ' + String(err&&err.message||err);
     return;
   }
   if (requestGeneration !== queryGeneration) return;
   if (!response || !response.ok) {
-    document.getElementById("statusLine").textContent = '历史数据加载失败';
+    document.getElementById("statusLine").textContent = L('Failed to load history');
     return;
   }
   if(data && data.latest && Number(data.latest.ts)>Number((response.latest||{}).ts||0)) response.latest=data.latest;
@@ -432,11 +557,11 @@ async function loadQuery(){
     schedulePoll();
   }
   document.getElementById("statusLine").innerHTML = stale
-    ? '<span class="stale">采集似乎已停止</span> · 原始点 ' + (data.count||0) + " · 步长 " + data.step + "s"
-    : "采集正常 · " + ((data.targets||[]).length) + " 个目标 · 每 " + pingInterval + " 秒探测 · 原始点 " + (data.count||0) + " · 显示步长 " + data.step + "s · " + fmtTime(from) + " 至 " + fmtTime(to);
+    ? '<span class="stale">' + L('Collection appears to have stopped') + '</span>' + T(' · %s raw points · step %s s', data.count||0, data.step)
+    : T("Collecting · %s targets · probe every %s s · %s raw points · step %s s · %s to %s", (data.targets||[]).length, pingInterval, data.count||0, data.step, fmtTime(from), fmtTime(to));
   if (data.meta) {
     const mb = ((data.meta.bytes||0)/1024/1024).toFixed(2);
-    document.getElementById("storeLine").textContent = "已存 " + (data.meta.samples||0) + " 点 / " + mb + " MB，保留 " + (data.meta.retain_days || 366) + " 天";
+    document.getElementById("storeLine").textContent = T("Stored %s points / %s MB, kept for %s days", data.meta.samples||0, mb, data.meta.retain_days || 366);
   }
   updatePageSub();
   if (!custom) {
@@ -467,27 +592,28 @@ function yMax(){
 }
 function draw(){
   const {ctx,w,h,pad} = geometry();
+  const ink = cssVar("--chart-ink", "#8ea0b8");
   ctx.clearRect(0,0,w,h);
-  ctx.fillStyle = "#fbfdfe";
+  ctx.fillStyle = cssVar("--chart-bg", "#fbfdfe");
   ctx.fillRect(0,0,w,h);
   if (!data || !data.t || !data.t.length) {
-    ctx.fillStyle = "#84909b";
+    ctx.fillStyle = ink;
     ctx.font = "14px sans-serif";
-    ctx.fillText("暂无曲线。添加目标后会在这里画出来", 24, h/2);
+    ctx.fillText(L("No data yet. Add a target and the chart will appear here"), 24, h/2);
     return;
   }
   if (!visibleTargets().length) {
-    ctx.fillStyle = "#8ea0b8";
+    ctx.fillStyle = ink;
     ctx.font = "14px sans-serif";
-    ctx.fillText("已隐藏全部曲线，点上方彩色标签勾选要看的项目", 24, h/2);
+    ctx.fillText(L("All series are hidden. Click the colored labels above to select which to show"), 24, h/2);
     return;
   }
   const t0 = data.t[0], t1 = data.t[data.t.length-1] || t0+1;
   const maxv = yMax();
   const x = ts => pad.l + (ts-t0) / Math.max(1,t1-t0) * (w-pad.l-pad.r);
   const y = v => pad.t + (1 - v/maxv) * (h-pad.t-pad.b);
-  ctx.strokeStyle = "#e4ecef"; ctx.lineWidth = 1;
-  ctx.fillStyle = "#8ea0b8"; ctx.font = "11px sans-serif";
+  ctx.strokeStyle = cssVar("--chart-grid", "#e4ecef"); ctx.lineWidth = 1;
+  ctx.fillStyle = ink; ctx.font = "11px sans-serif";
   for (let i=0;i<=4;i++){
     const v = maxv * i / 4, yy = y(v);
     ctx.beginPath(); ctx.moveTo(pad.l, yy); ctx.lineTo(w-pad.r, yy); ctx.stroke();
@@ -539,12 +665,12 @@ function draw(){
       const d=Math.abs(data.t[i]-ts); if (d<best){best=d; idx=i;}
     }
     const xx=x(data.t[idx]);
-    ctx.strokeStyle="#8ea0b8"; ctx.beginPath(); ctx.moveTo(xx,pad.t); ctx.lineTo(xx,h-pad.b); ctx.stroke();
+    ctx.strokeStyle=ink; ctx.beginPath(); ctx.moveTo(xx,pad.t); ctx.lineTo(xx,h-pad.b); ctx.stroke();
     tip.style.display="block";
     const shown = visibleTargets();
     tip.innerHTML = fmtTime(data.t[idx]) + (shown.length ? shown : (data.targets||[])).map(t => {
       const s = (data.series||{})[t.id] || {};
-      return "<br>" + esc(t.name) + " " + fmtMs(s.avg && s.avg[idx]) + " ms";
+      return "<br>" + esc(L(t.name)) + " " + fmtMs(s.avg && s.avg[idx]) + " ms";
     }).join("");
   }
   if (drag){
@@ -675,9 +801,9 @@ window.addEventListener("resize", draw);
 function updatePageSub(){
   const sel = document.getElementById("pingInterval");
   if (sel && sel.value) pingInterval = Number(sel.value) || pingInterval;
-  const store = (data && (data.storage_label || (data.meta && data.meta.storage_label))) || "路由器本地存储";
+  const store = (data && (data.storage_label || (data.meta && data.meta.storage_label))) || L("local router storage");
   const el = document.getElementById("pageSub") || document.querySelector("h1 + .sub");
-  if (el) el.textContent = "从 iStoreOS WAN 经 CPE 探测。每 " + pingInterval + " 秒一个点，数据保存在" + store + "上。目标可任意添加，阿里云 / 腾讯云 / Steam 只是一键预设。";
+  if (el) el.textContent = T("Probing through the WAN interface. One point every %s seconds; data stored in %s. Targets can be added freely; Alibaba Cloud, Tencent Cloud and Steam are one-click presets.", pingInterval, store);
 }
 function schedulePoll(){
   if (pollTimer) clearInterval(pollTimer);
@@ -697,8 +823,9 @@ document.getElementById("pingInterval").addEventListener("change", async () => {
 ['probeTimeout','latencyThreshold','retainDays'].forEach(id=>{ const e=document.getElementById(id); if(e)e.addEventListener('change',()=>saveSetting({probeTimeout:'timeout',latencyThreshold:'latency_threshold_ms',retainDays:'retain_days'}[id],e.value)); });
 updatePageSub();
 schedulePoll();
+initTheme();
 loadRealtime();
-loadSettings().catch(err => { document.getElementById('statusLine').textContent = '设置读取失败：' + String(err && err.message || err); });
+loadSettings().catch(err => { document.getElementById('statusLine').textContent = L('Failed to load settings') + ': ' + String(err && err.message || err); });
 loadQuery();
 </script>
 </body>

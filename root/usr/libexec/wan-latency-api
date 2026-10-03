@@ -132,11 +132,11 @@ if action == "add" then
   local host = tostring(q.host or ""):gsub("^%s+", ""):gsub("%s+$", "")
   local name = wl.sanitize_name(q.name or "")
   if not wl.valid_host(host) then
-    send('{"ok":false,"error":"地址不合法，只能填 IP 或域名"}'); os.exit(0)
+    send('{"ok":false,"error":"Invalid address; only an IP or hostname is allowed"}'); os.exit(0)
   end
   local lock_ok, result = wl.with_target_lock(function()
   local list = wl.load_targets()
-  if #list >= wl.MAX_TARGETS then return { error = "最多 " .. wl.MAX_TARGETS .. " 个目标" } end
+  if #list >= wl.MAX_TARGETS then return { error = "Target limit reached" } end
   local preset = nil
   for i = 1, #wl.PRESETS do
     if wl.PRESETS[i].host == host or wl.PRESETS[i].id == host then preset = wl.PRESETS[i] end
@@ -148,7 +148,7 @@ if action == "add" then
   if not name then name = host end
   for i = 1, #list do
     if list[i].id == id or list[i].host == host then
-      return { error = "这个地址已经在列表里" }
+      return { error = "This address is already in the list" }
     end
   end
   local color = (preset and preset.color) or wl.next_color(list)
@@ -171,7 +171,7 @@ end
 if action == "setting" then
   local option = q.name or ""
   local value = wl.save_setting(option, q.value or "")
-  if not value then send('{"ok":false,"error":"不支持的设置项"}') else
+  if not value then send('{"ok":false,"error":"Unsupported setting"}') else
     send(string.format('{"ok":true,"name":"%s","value":%d}', wl.json_escape(option), value))
   end
   os.exit(0)
