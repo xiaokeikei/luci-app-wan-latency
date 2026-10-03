@@ -68,7 +68,7 @@ canvas { width: 100%; height: 420px; display: block; cursor: crosshair; }
 @media (max-width: 900px) { canvas { height: 320px; } }
 
 /* Light monitoring dashboard inspired by the supplied reference */
-:root { --bg:#eef4f7; --panel:rgba(255,255,255,.90); --line:#e1e9ee; --text:#26313b; --muted:#84909b; --green:#27a55d; --blue:#159bd1; --yellow:#e7a400; --loss:#e35353; }
+:root { --bg:#eef4f7; --panel:rgba(255,255,255,.90); --panel2:#ffffff; --line:#e1e9ee; --text:#26313b; --muted:#84909b; --green:#27a55d; --blue:#159bd1; --yellow:#e7a400; --loss:#e35353; --accent:#4d7fd6; --chart-bg:#fbfdfe; --chart-grid:#e4ecef; --chart-ink:#8ea0b8; }
 html,body { background:linear-gradient(135deg,#eef6f8 0%,#f8fafb 52%,#eaf1f4 100%); color:var(--text); }
 body { max-width:1280px; margin:0 auto; padding:18px 32px 36px; }
 .topnav { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:18px; }
@@ -92,6 +92,39 @@ body { max-width:1280px; margin:0 auto; padding:18px 32px 36px; }
 .region-select { min-width:120px; } .region-badge { display:inline-block; margin-left:5px; border-radius:999px; padding:2px 7px; font-size:10px; background:#edf7ff; color:#2580b1; }
 @media(max-width:900px){body{padding:14px}.overview-grid{grid-template-columns:repeat(2,1fr)}.cards{grid-template-columns:repeat(2,minmax(220px,1fr))}.settings{grid-template-columns:repeat(2,1fr)}.hero-stats{margin-left:0}}
 @media(max-width:600px){.overview-grid,.cards,.settings{grid-template-columns:1fr}.hero{align-items:flex-start}.hero-stats{gap:15px}}
+
+/* Dark palette: applied by syncTheme() when the embedding LuCI theme is dark */
+html.theme-dark { --bg:#0f1724; --panel:#172033; --panel2:#101a2b; --line:#263247; --text:#e8eef8; --muted:#8ea0b8; --green:#3ecf8e; --blue:#6db3f2; --yellow:#e7a400; --loss:#ff5d73; --accent:#4d7fd6; --chart-bg:#101a2b; --chart-grid:#263247; --chart-ink:#8ea0b8; }
+html.theme-dark, html.theme-dark body { background:var(--bg); color:var(--text); }
+html.theme-dark .topnav .brand { color:var(--text); }
+html.theme-dark .navitem { color:var(--muted); }
+html.theme-dark .navitem:hover { background:var(--panel2); color:var(--text); }
+html.theme-dark .navitem.active { background:var(--panel2); color:var(--text); box-shadow:none; }
+html.theme-dark .hero { background:var(--panel); border-color:var(--line); box-shadow:none; }
+html.theme-dark .hero-stat b { color:var(--text); }
+html.theme-dark .overview-card, html.theme-dark .card, html.theme-dark .chart-wrap, html.theme-dark .settings { background:var(--panel); border-color:var(--line); box-shadow:none; }
+html.theme-dark .overview-card .label, html.theme-dark .setting { color:var(--muted); }
+html.theme-dark .toolbar, html.theme-dark .addbar, html.theme-dark .series-bar { background:var(--panel); border-color:var(--line); }
+html.theme-dark .btn, html.theme-dark input, html.theme-dark select { background:var(--panel2); color:var(--text); border-color:var(--line); }
+html.theme-dark .btn.active { background:#2a4d86; border-color:var(--accent); color:var(--text); }
+html.theme-dark .btn.preset { border-color:var(--line); }
+html.theme-dark .chip { background:var(--panel2); border-color:var(--line); }
+html.theme-dark .chip.on { background:#2a4d86; border-color:var(--accent); }
+html.theme-dark .method { border-color:var(--line); }
+html.theme-dark .region-badge { background:#16294a; color:#7aa5d8; }
+html.theme-dark .tip { background:#0c1320; }
+html.theme-dark ::placeholder { color:var(--muted); }
+
+/* Translucent panels when the parent theme paints a wallpaper/background image (e.g. kucat, argon) */
+html.theme-transparent, html.theme-transparent body { background:transparent; }
+html.theme-transparent:not(.theme-dark) { --panel:rgba(255,255,255,.55); --panel2:rgba(255,255,255,.55); --chart-bg:rgba(255,255,255,.5); }
+html.theme-transparent.theme-dark { --panel:rgba(23,32,51,.6); --panel2:rgba(16,26,43,.55); --chart-bg:rgba(16,26,43,.5); }
+html.theme-transparent.theme-dark input, html.theme-transparent.theme-dark select, html.theme-transparent.theme-dark textarea { color-scheme:dark; }
+html.theme-transparent .navitem.active, html.theme-transparent .hero, html.theme-transparent .overview-card,
+html.theme-transparent .card, html.theme-transparent .chart-wrap, html.theme-transparent .settings,
+html.theme-transparent .toolbar, html.theme-transparent .addbar, html.theme-transparent .series-bar {
+  -webkit-backdrop-filter:blur(14px) saturate(1.3); backdrop-filter:blur(14px) saturate(1.3);
+}
 </style>
 </head>
 <body>
@@ -162,6 +195,81 @@ function T(s){
   document.querySelectorAll("[data-i18n-placeholder]").forEach(function(el){ el.placeholder = L(el.placeholder); });
   document.querySelectorAll("[data-i18n-aria]").forEach(function(el){ el.setAttribute("aria-label", L(el.getAttribute("aria-label") || "")); });
 })();
+function cssVar(name, fallback){
+  try {
+    var v = window.getComputedStyle && window.getComputedStyle(document.documentElement).getPropertyValue(name);
+    return (v && v.trim()) || fallback;
+  } catch (e) { return fallback; }
+}
+function syncTheme(){
+  var dark = null, transparent = false;
+  try {
+    var pw = window.parent;
+    if (pw && pw !== window && pw.document && pw.getComputedStyle) {
+      var pb = pw.document.body, pe = pw.document.documentElement;
+      var lum = function(m){ return (0.2126 * m[1] + 0.7152 * m[2] + 0.0722 * m[3]) / 255; };
+      var rgb = function(c){ return String(c || "").match(/rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)(?:[\s,/]+([\d.]+))?/); };
+      var dt = (pb && typeof pb.getAttribute === "function" && pb.getAttribute("data-theme"))
+        || (pe && typeof pe.getAttribute === "function" && pe.getAttribute("data-theme"));
+      if (dt === "dark" || dt === "light") dark = (dt === "dark");
+      [ pb, pe ].forEach(function(el){
+        if (!el) return;
+        var st = pw.getComputedStyle(el);
+        if (el === pb && st.backgroundImage && st.backgroundImage !== "none") transparent = true;
+        if (dark === null) {
+          var m = rgb(st.backgroundColor);
+          if (m && (m[4] === undefined || parseFloat(m[4]) > 0.05)) dark = lum(m) < 0.45;
+        }
+      });
+      try {
+        [ "::before", "::after" ].forEach(function(ps){
+          var b = pb && pw.getComputedStyle(pb, ps).backgroundImage;
+          if (b && b !== "none") transparent = true;
+        });
+        [].slice.call((pb && pb.children) || []).forEach(function(ch){
+          var s2 = pw.getComputedStyle(ch);
+          if (s2.backgroundImage && s2.backgroundImage !== "none" && (s2.position === "fixed" || s2.position === "absolute")) transparent = true;
+        });
+      } catch (e2) {}
+      try {
+        for (var fe = window.frameElement; fe && fe !== pb; fe = fe.parentElement) {
+          var fs = pw.getComputedStyle(fe);
+          if (fs.backgroundImage && fs.backgroundImage !== "none") { transparent = true; break; }
+        }
+      } catch (e3) {}
+      if (dark === null && pb) {
+        var tc = rgb(pw.getComputedStyle(pb).color);
+        if (tc) dark = lum(tc) > 0.6;
+      }
+    }
+  } catch (e) {}
+  if (dark === null) {
+    try { dark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches); } catch (e) {}
+  }
+  var root = document.documentElement;
+  if (!root || !root.classList) return;
+  var was = root.classList.contains("theme-dark") || root.classList.contains("theme-transparent");
+  root.classList.toggle("theme-dark", !!dark);
+  root.classList.toggle("theme-transparent", transparent);
+  try { root.style.colorScheme = transparent ? "normal" : (dark ? "dark" : "light"); } catch (e) {}
+  var is = root.classList.contains("theme-dark") || root.classList.contains("theme-transparent");
+  if (was !== is) draw();
+}
+function initTheme(){
+  syncTheme();
+  try {
+    var pw = window.parent;
+    if (pw && pw !== window && pw.document && pw.MutationObserver) {
+      var mo = new pw.MutationObserver(syncTheme);
+      mo.observe(pw.document.documentElement, { attributes: true, attributeFilter: ["class", "style"] });
+      if (pw.document.body) mo.observe(pw.document.body, { attributes: true, attributeFilter: ["class", "style"] });
+    }
+  } catch (e) {}
+  try {
+    var mq = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
+    if (mq && mq.addEventListener) mq.addEventListener("change", syncTheme);
+  } catch (e) {}
+}
 const PRESETS = [
   {id:"ali", name:"Alibaba Cloud", host:"223.5.5.5"},
   {id:"tencent", name:"Tencent Cloud", host:"119.29.29.29"},
@@ -484,17 +592,18 @@ function yMax(){
 }
 function draw(){
   const {ctx,w,h,pad} = geometry();
+  const ink = cssVar("--chart-ink", "#8ea0b8");
   ctx.clearRect(0,0,w,h);
-  ctx.fillStyle = "#fbfdfe";
+  ctx.fillStyle = cssVar("--chart-bg", "#fbfdfe");
   ctx.fillRect(0,0,w,h);
   if (!data || !data.t || !data.t.length) {
-    ctx.fillStyle = "#84909b";
+    ctx.fillStyle = ink;
     ctx.font = "14px sans-serif";
     ctx.fillText(L("No data yet. Add a target and the chart will appear here"), 24, h/2);
     return;
   }
   if (!visibleTargets().length) {
-    ctx.fillStyle = "#8ea0b8";
+    ctx.fillStyle = ink;
     ctx.font = "14px sans-serif";
     ctx.fillText(L("All series are hidden. Click the colored labels above to select which to show"), 24, h/2);
     return;
@@ -503,7 +612,7 @@ function draw(){
   const maxv = yMax();
   const x = ts => pad.l + (ts-t0) / Math.max(1,t1-t0) * (w-pad.l-pad.r);
   const y = v => pad.t + (1 - v/maxv) * (h-pad.t-pad.b);
-  ctx.strokeStyle = "#e4ecef"; ctx.lineWidth = 1;
+  ctx.strokeStyle = cssVar("--chart-grid", "#e4ecef"); ctx.lineWidth = 1;
   ctx.fillStyle = ink; ctx.font = "11px sans-serif";
   for (let i=0;i<=4;i++){
     const v = maxv * i / 4, yy = y(v);
@@ -714,6 +823,7 @@ document.getElementById("pingInterval").addEventListener("change", async () => {
 ['probeTimeout','latencyThreshold','retainDays'].forEach(id=>{ const e=document.getElementById(id); if(e)e.addEventListener('change',()=>saveSetting({probeTimeout:'timeout',latencyThreshold:'latency_threshold_ms',retainDays:'retain_days'}[id],e.value)); });
 updatePageSub();
 schedulePoll();
+initTheme();
 loadRealtime();
 loadSettings().catch(err => { document.getElementById('statusLine').textContent = L('Failed to load settings') + ': ' + String(err && err.message || err); });
 loadQuery();
