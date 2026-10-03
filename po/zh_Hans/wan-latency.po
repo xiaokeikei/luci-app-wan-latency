@@ -1,0 +1,301 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Project-Id-Version: PACKAGE VERSION\n"
+"Last-Translator: xiaokeikei\n"
+"Language-Team: none\n"
+"Language: zh_Hans\n"
+"MIME-Version: 1.0\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "WAN Latency"
+msgstr "公网延迟"
+
+msgid "WAN latency monitor navigation"
+msgstr "公网延迟监控导航"
+
+msgid "Overview"
+msgstr "概览"
+
+msgid "Realtime"
+msgstr "实时监控"
+
+msgid "Latency Chart"
+msgstr "延迟曲线"
+
+msgid "Domestic / International"
+msgstr "国内 / 国外"
+
+msgid "History"
+msgstr "历史数据"
+
+msgid "Targets"
+msgstr "目标管理"
+
+msgid "Settings"
+msgstr "设置"
+
+msgid "Network Healthy"
+msgstr "网络正常"
+
+msgid "Current Average Latency"
+msgstr "当前平均延迟"
+
+msgid "Average Latency"
+msgstr "平均延迟"
+
+msgid "Packet Loss"
+msgstr "丢包率"
+
+msgid "Online Targets"
+msgstr "在线目标"
+
+msgid "Failing Targets"
+msgstr "异常目标"
+
+msgid "Average across all enabled targets"
+msgstr "所有已启用目标的平均值"
+
+msgid "Current Latency"
+msgstr "当前延迟"
+
+msgid "Latest collected sample"
+msgstr "最近一次采集结果"
+
+msgid "Domestic"
+msgstr "国内"
+
+msgid "International"
+msgstr "国外"
+
+msgid "Average latency of domestic targets"
+msgstr "国内目标平均延迟"
+
+msgid "Average latency of international targets"
+msgstr "国外目标平均延迟"
+
+msgid "Collection Status"
+msgstr "采集状态"
+
+msgid "Presets"
+msgstr "预设"
+
+msgid "Alibaba Cloud"
+msgstr "阿里云"
+
+msgid "Tencent Cloud"
+msgstr "腾讯云"
+
+msgid "Name (optional)"
+msgstr "名称，可空"
+
+msgid "IP or hostname, e.g. 8.8.8.8"
+msgstr "IP 或域名，例如 8.8.8.8"
+
+msgid "Auto"
+msgstr "自动"
+
+msgid "Auto-classify"
+msgstr "自动分类"
+
+msgid "Add Target"
+msgstr "添加目标"
+
+msgid "Probe interval"
+msgstr "探测间隔"
+
+msgid "Per-target timeout"
+msgstr "单目标超时"
+
+msgid "Alert threshold (ms)"
+msgstr "告警阈值（毫秒）"
+
+msgid "Data retention (days)"
+msgstr "数据保留天数"
+
+msgid "1 s"
+msgstr "1 秒"
+
+msgid "2 s"
+msgstr "2 秒"
+
+msgid "3 s"
+msgstr "3 秒"
+
+msgid "5 s"
+msgstr "5 秒"
+
+msgid "10 s"
+msgstr "10 秒"
+
+msgid "15 s"
+msgstr "15 秒"
+
+msgid "30 s"
+msgstr "30 秒"
+
+msgid "1 minute"
+msgstr "1 分钟"
+
+msgid "2 minutes"
+msgstr "2 分钟"
+
+msgid "5 minutes"
+msgstr "5 分钟"
+
+msgid "15 min"
+msgstr "15分钟"
+
+msgid "30 min"
+msgstr "30分钟"
+
+msgid "1 hour"
+msgstr "1小时"
+
+msgid "6 hours"
+msgstr "6小时"
+
+msgid "24 hours"
+msgstr "24小时"
+
+msgid "7 days"
+msgstr "7天"
+
+msgid "30 days"
+msgstr "30天"
+
+msgid "1 year"
+msgstr "1年"
+
+msgid "to"
+msgstr "至"
+
+msgid "Apply"
+msgstr "筛选"
+
+msgid "Follow Live"
+msgstr "实时跟随"
+
+msgid "Export CSV"
+msgstr "导出 CSV"
+
+msgid "Visible series"
+msgstr "显示曲线"
+
+msgid "All"
+msgstr "全选"
+
+msgid "None"
+msgstr "清空"
+
+msgid "Invert"
+msgstr "反选"
+
+msgid "Loading…"
+msgstr "正在加载…"
+
+msgid "Failed"
+msgstr "失败"
+
+msgid "Unknown"
+msgstr "未知"
+
+msgid "Added: %s"
+msgstr "已有 %s"
+
+msgid "No probe targets yet"
+msgstr "还没有探测目标"
+
+msgid "Use a preset above or enter an address"
+msgstr "点上面的预设，或自己填一个地址"
+
+msgid "Drag to reorder"
+msgstr "拖动可调整顺序"
+
+msgid "Delete"
+msgstr "删除"
+
+msgid "Loss"
+msgstr "丢包"
+
+msgid "jitter"
+msgstr "抖动"
+
+msgid "Toggle series above · drag cards to reorder · drag the chart to zoom, double-click to reset, scroll to zoom"
+msgstr "上方可勾选显示哪几条曲线 · 卡片可拖动排序 · 曲线拖拽缩放，双击还原，滚轮放大"
+
+msgid "Please open this page from an authenticated LuCI session"
+msgstr "请从已登录的 LuCI 公网延迟页面访问"
+
+msgid "Failed to add target"
+msgstr "添加失败"
+
+msgid "Samples: %s"
+msgstr "样本数：%s"
+
+msgid "Error"
+msgstr "异常"
+
+msgid "OK"
+msgstr "正常"
+
+msgid "Last updated"
+msgstr "最近更新"
+
+msgid "Waiting for data"
+msgstr "等待数据"
+
+msgid "Collection Error"
+msgstr "采集异常"
+
+msgid "Realtime data loaded; loading history…"
+msgstr "实时数据已加载，正在读取历史曲线…"
+
+msgid "Failed to load realtime data"
+msgstr "实时数据加载失败"
+
+msgid "Failed to load history"
+msgstr "历史数据加载失败"
+
+msgid "Failed to load settings"
+msgstr "设置读取失败"
+
+msgid "Collection appears to have stopped"
+msgstr "采集似乎已停止"
+
+msgid "· %s raw points · step %s s"
+msgstr "· 原始点 %s · 步长 %s s"
+
+msgid "Collecting · %s targets · probe every %s s · %s raw points · step %s s · %s to %s"
+msgstr "采集正常 · %s 个目标 · 每 %s 秒探测 · 原始点 %s · 显示步长 %s s · %s 至 %s"
+
+msgid "Stored %s points / %s MB, kept for %s days"
+msgstr "已存 %s 点 / %s MB，保留 %s 天"
+
+msgid "No data yet. Add a target and the chart will appear here"
+msgstr "暂无曲线。添加目标后会在这里画出来"
+
+msgid "All series are hidden. Click the colored labels above to select which to show"
+msgstr "已隐藏全部曲线，点上方彩色标签勾选要看的项目"
+
+msgid "local router storage"
+msgstr "路由器本地存储"
+
+msgid "Probing through the WAN interface. One point every %s seconds; data stored in %s. Targets can be added freely; Alibaba Cloud, Tencent Cloud and Steam are one-click presets."
+msgstr "从 WAN 接口探测。每 %s 秒一个点，数据保存在%s上。目标可任意添加，阿里云 / 腾讯云 / Steam 只是一键预设。"
+
+msgid "Invalid address; only an IP or hostname is allowed"
+msgstr "地址不合法，只能填 IP 或域名"
+
+msgid "Target limit reached"
+msgstr "目标数量已达上限"
+
+msgid "This address is already in the list"
+msgstr "这个地址已经在列表里"
+
+msgid "Unsupported setting"
+msgstr "不支持的设置项"
+
+msgid "Configuration is busy, please try again later"
+msgstr "配置正忙，请稍后重试"
