@@ -2,7 +2,14 @@
 
 一个适用于 OpenWrt / ImmortalWrt / iStoreOS 的 LuCI 公网延迟监控插件。它持续从 WAN 接口探测多个目标，将数据保存在路由器本地，并在 LuCI「状态 → 公网延迟」中展示实时状态和历史曲线。
 
-## v1.4.1
+## v1.5.0
+
+- 增加运营商自动归档、历史筛选和延迟对比，兼容同槽拔插换卡。
+- 支持 MU300 原生双 SIM 数据卡切换；保留所有历史和总体记录。
+- 识别失效时不沿用旧缓存，手动标记绑定当前 SIM。
+- 详细行为与数据兼容性见 [运营商记录与换卡](docs/carriers.md)。
+
+### 原有功能
 
 - 历史折线图使用透明背景，适配浏览器黑暗模式，避免绘图区显示刺眼的白底。
 
@@ -76,7 +83,7 @@ make package/luci-app-wan-latency/compile V=s
 将 `.ipk` 上传到路由器后执行：
 
 ```sh
-opkg install ./luci-app-wan-latency_1.4.1-1_all.ipk
+opkg install ./luci-app-wan-latency_1.5.0-1_all.ipk
 ```
 
 ### 自解压安装器
@@ -84,8 +91,8 @@ opkg install ./luci-app-wan-latency_1.4.1-1_all.ipk
 也可以使用 `.run` 安装同一个通用 IPK。它不会覆盖已有的 `/etc/config/wan-latency`、目标列表和历史数据：
 
 ```sh
-chmod +x luci-app-wan-latency-1.4.1-1.run
-./luci-app-wan-latency-1.4.1-1.run
+chmod +x luci-app-wan-latency-1.5.0-1.run
+./luci-app-wan-latency-1.5.0-1.run
 ```
 
 `.run` 不会自动联网安装依赖；缺少依赖时会列出需要执行的 `opkg install` 命令。
