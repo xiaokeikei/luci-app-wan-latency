@@ -104,3 +104,7 @@ OpenWrt 25.12 及以后使用 `.apk` 的系统尚未完成实机或官方 SDK �
 ## 来源与许可
 
 本仓库由一台正在运行的 iStoreOS 设备上的自用插件整理而成，以 [GPL-2.0-only](LICENSE) 许可证发布。
+
+## OpenWrt 25.12 APK
+
+MU300 / U30 Air 的 APK v3 包及构建、安装说明见 [APK 安装指南](docs/APK.md)。

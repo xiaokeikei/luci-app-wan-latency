@@ -1,0 +1,61 @@
+name: Build OpenWrt APK
+on:
+  push:
+    branches: [build/u30air-apk]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  apk:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build and test tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y fakeroot zstd cmake libjson-c-dev lua5.1
+          git clone --depth 1 https://github.com/jow-/ucode.git "$RUNNER_TEMP/ucode"
+          cmake -S "$RUNNER_TEMP/ucode" -B "$RUNNER_TEMP/ucode/build" -DCMAKE_BUILD_TYPE=Release
+          cmake --build "$RUNNER_TEMP/ucode/build" -j2
+          sudo cmake --install "$RUNNER_TEMP/ucode/build"
+          sudo ldconfig
+      - name: Run tests
+        run: |
+          if [ -f tests/mu300-cache.py ]; then
+            python3 tests/mu300-cache.py ucode
+            python3 tests/bands-parser.py ucode
+            python3 tests/carrier-history.py ucode
+            sh tests/carrier-accounting.sh root/usr/lib/cpemonitor/traffic-delta.awk
+            sh tests/quota-accounting.sh root/usr/lib/cpemonitor/quota.sh
+            node tests/bands-ui.js
+            node tests/traffic-ui.js
+          fi
+          if [ -f tests/realtime-ui.cjs ]; then
+            node tests/realtime-ui.cjs
+            node tests/regional-loss.cjs
+            LUA_PATH='./files/usr/lib/lua/?.lua;;' lua5.1 tests/carrier-records.lua
+            LUA_PATH='./files/usr/lib/lua/?.lua;;' lua5.1 tests/probe-loss.lua
+          fi
+          for root in root files; do
+            if [ -d "$root" ]; then
+              find "$root" -type f | while read -r file; do
+                if head -n1 "$file" | grep -q '^#!/bin/sh'; then sh -n "$file"; fi
+              done
+            fi
+          done
+      - name: Fetch verified OpenWrt 25.12.5 SDK
+        run: |
+          sdk=openwrt-sdk-25.12.5-armsr-armv8_gcc-14.3.0_musl.Linux-x86_64.tar.zst
+          curl -fL --retry 3 "https://downloads.openwrt.org/releases/25.12.5/targets/armsr/armv8/$sdk" -o "$RUNNER_TEMP/sdk.tar.zst"
+          echo "1b0316604a3e820b2b008a1baff3f9dac6716af942bef800930e58c7de98c98b  $RUNNER_TEMP/sdk.tar.zst" | sha256sum -c -
+          mkdir "$RUNNER_TEMP/sdk"
+          tar --zstd -xf "$RUNNER_TEMP/sdk.tar.zst" -C "$RUNNER_TEMP/sdk" --strip-components=1
+          echo "APK=$RUNNER_TEMP/sdk/staging_dir/host/bin/apk" >> "$GITHUB_ENV"
+      - name: Build and verify APK
+        run: python3 tools/build_apk.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: openwrt-apk
+          path: dist/*
+          if-no-files-found: error

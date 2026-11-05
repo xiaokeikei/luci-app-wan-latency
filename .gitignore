@@ -10,3 +10,7 @@ Thumbs.db
 
 # Local device screenshots may contain private information.
 docs/screenshots/
+
+dist/
+*.apk
+.ipkbuild/
