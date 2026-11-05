@@ -53,14 +53,14 @@ jobs:
           tar --zstd -xf "$RUNNER_TEMP/sdk.tar.zst" -C "$RUNNER_TEMP/sdk" --strip-components=1
           echo "APK=$RUNNER_TEMP/sdk/staging_dir/host/bin/apk" >> "$GITHUB_ENV"
       - name: Build and verify APK
-        run: python3 tools/build_apk.py
+        run: sudo --preserve-env=APK python3 tools/build_apk.py
       - name: Resolve dependencies and install into ARM64 OpenWrt rootfs
         run: |
           rootfs=openwrt-25.12.5-armsr-armv8-rootfs.tar.gz
           curl -fL --retry 3 "https://downloads.openwrt.org/releases/25.12.5/targets/armsr/armv8/$rootfs" -o "$RUNNER_TEMP/rootfs.tar.gz"
           echo "493336e176fdc1d6a377763e87a58c5854c24f51e83e586b209783e4bb648d42  $RUNNER_TEMP/rootfs.tar.gz" | sha256sum -c -
           mkdir "$RUNNER_TEMP/arm64-root"
-          tar -xzf "$RUNNER_TEMP/rootfs.tar.gz" -C "$RUNNER_TEMP/arm64-root"
+          sudo tar -xzf "$RUNNER_TEMP/rootfs.tar.gz" -C "$RUNNER_TEMP/arm64-root"
           sudo "$APK" --root "$RUNNER_TEMP/arm64-root" --arch aarch64_generic --no-scripts --allow-untrusted add "$GITHUB_WORKSPACE"/dist/*.apk
           sudo "$APK" --root "$RUNNER_TEMP/arm64-root" info -e "${GITHUB_REPOSITORY#*/}"
       - uses: actions/upload-artifact@v4

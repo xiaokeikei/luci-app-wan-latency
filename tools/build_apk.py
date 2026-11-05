@@ -9,8 +9,8 @@ VERSION = re.search(r'PKG_VERSION:=(\S+)', make)[1]
 RELEASE = re.search(r'PKG_RELEASE:=(\S+)', make)[1]
 APK = os.environ.get('APK', 'apk')
 OUT = ROOT / 'dist'
-FILES = subprocess.check_output(['git', 'ls-files', '-z'], cwd=ROOT).decode().split('\0')
-EPOCH = int(subprocess.check_output(['git', 'log', '-1', '--format=%ct'], cwd=ROOT))
+FILES = subprocess.check_output(['git', '-c', f'safe.directory={ROOT}', 'ls-files', '-z'], cwd=ROOT).decode().split('\0')
+EPOCH = int(subprocess.check_output(['git', '-c', f'safe.directory={ROOT}', 'log', '-1', '--format=%ct'], cwd=ROOT))
 CF_URL = 'https://github.com/XIU2/CloudflareSpeedTest/releases/download/v2.3.5/cfst_linux_arm64.tar.gz'
 CF_SHA256 = '0ac992fcf24d4684caed33620deb9b83ce82f32d2418dc1f90be490ce5900300'
 
@@ -31,6 +31,8 @@ def checked(f, data):
     return data.replace(b'\r\n', b'\n')
 
 def main():
+    if os.geteuid() != 0:
+        raise ValueError('Run with sudo to preserve root ownership in APK metadata')
     OUT.mkdir(exist_ok=True)
     if any(OUT.iterdir()):
         raise ValueError('Use an empty dist directory to avoid stale release files')
@@ -77,7 +79,7 @@ def main():
                 'license': 'GPL-3.0-only' if NAME.endswith('cf-dns-speedtest') else 'GPL-2.0-only',
                 'description': 'LuCI ' + NAME.removeprefix('luci-app-') + ' for OpenWrt 25.12',
                 'maintainer': 'Project contributors', 'depends': ' '.join(deps)}
-        command = ['fakeroot', APK, 'mkpkg']
+        command = [APK, 'mkpkg']
         for key, value in info.items():
             command += ['--info', key + ':' + value]
         subprocess.run(command + scripts + ['--files', str(stage), '--output', str(package)], check=True)
@@ -89,7 +91,7 @@ def main():
         for source in stage.rglob('*'):
             if source.is_file():
                 actual = unpack / source.relative_to(stage)
-                if not actual.exists() or actual.read_bytes() != source.read_bytes():
+                if not actual.exists() or actual.read_bytes() != source.read_bytes() or actual.stat().st_uid != 0 or (actual.stat().st_mode & 0o777) != (source.stat().st_mode & 0o777):
                     raise ValueError('Extracted payload mismatch: ' + str(source.relative_to(stage)))
         with zipfile.ZipFile(OUT / f'{NAME}-{VERSION}-{RELEASE}-source.zip', 'w', zipfile.ZIP_DEFLATED) as archive:
             for f in filter(allowed, FILES):
