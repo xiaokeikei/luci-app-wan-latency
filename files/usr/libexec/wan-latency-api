@@ -133,6 +133,15 @@ if action == "carrier_status" or action == "carrier_set" or action == "carrier_s
   send(reply ~= "" and reply or '{"ok":false,"error":"carrier_unavailable"}'); os.exit(0)
 end
 
+if action == "device" then
+  local hostname = ""
+  local f = io.open("/proc/sys/kernel/hostname", "r")
+  if f then hostname = f:read("*l") or ""; f:close() end
+  hostname = hostname:gsub("[%z\1-\31\127]", ""):sub(1, 255)
+  if hostname == "" then hostname = "当前设备" end
+  send('{"ok":true,"hostname":"' .. wl.json_escape(hostname) .. '"}'); os.exit(0)
+end
+
 if action == "latest" then
   send(latest_raw()); os.exit(0)
 end
@@ -316,13 +325,14 @@ for i = 1, #list do
     if k then avg[j] = data.avg[k]; mn[j] = data.min[k]; mx[j] = data.max[k] end
   end
   local st = stats_of(avg, n)
+  st.loss = data.count > 0 and math.floor((data.failed or 0) * 1000 / data.count + 0.5) / 10 or nil
   series_json[#series_json + 1] = string.format(
     '"%s":{"avg":%s,"min":%s,"max":%s}',
     t.id, wl.json_array(avg, false, n), wl.json_array(mn, false, n), wl.json_array(mx, false, n))
   stats_json[#stats_json + 1] = string.format(
-    '"%s":{"avg":%s,"min":%s,"max":%s,"loss":%s,"jitter":%s,"p50":%s,"p95":%s,"p99":%s,"cur":%s,"method":"%s"}',
+    '"%s":{"avg":%s,"min":%s,"max":%s,"attempts":%d,"failed":%d,"loss":%s,"jitter":%s,"p50":%s,"p95":%s,"p99":%s,"cur":%s,"method":"%s"}',
     t.id, wl.json_num_or_null(st.avg), wl.json_num_or_null(st.min), wl.json_num_or_null(st.max),
-    wl.json_num_or_null(st.loss), wl.json_num_or_null(st.jitter), wl.json_num_or_null(st.p50),
+    data.count or 0, data.failed or 0, wl.json_num_or_null(st.loss), wl.json_num_or_null(st.jitter), wl.json_num_or_null(st.p50),
     wl.json_num_or_null(st.p95), wl.json_num_or_null(st.p99), wl.json_num_or_null(live_rtts[t.id]),
     wl.json_escape(live_methods[t.id] or "unknown"))
 end

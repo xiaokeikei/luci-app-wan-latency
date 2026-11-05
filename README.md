@@ -27,22 +27,8 @@
 - 支持 15 分钟、30 分钟、1 小时、6 小时、24 小时、7 天、30 天、1 年及自定义时间范围
 - 原始数据和 1 分钟汇总数据使用紧凑二进制格式保存
 - 默认保留 366 天数据
-- 自带阿里云、腾讯云和 Steam 三个预设目标
+- 自带阿里云、腾讯云、Steam、114 DNS、百度 DNS、Cloudflare、Google DNS 和 Quad9 八个预设目标
 - 当前区间 CSV 导出及按目标筛选曲线
-
-## 界面预览
-
-### CPE 暗色模式与透明图表
-
-![ImmortalWrt CPE 公网延迟监控，暗色模式下的透明历史折线图](docs/screenshots/cpe-dark-transparent-v141.png)
-
-### 实时状态与监控总览
-
-![iStoreOS 公网延迟监控总览，显示实时延迟和配置](docs/screenshots/dashboard-overview-v140.jpg)
-
-### 历史曲线与时间范围
-
-![公网延迟历史曲线、时间范围和目标筛选](docs/screenshots/history-chart-v140.png)
 
 ## 依赖
 
@@ -60,7 +46,7 @@
 |---|---|---|---|---|
 | iStoreOS | 24.10.8 (2026073111) | 6.6.144 | x86_64 | LuCI 界面、实时探测、历史曲线及时间范围 |
 
-透明图表修复已在 ImmortalWrt 24.10-SNAPSHOT / aarch64 CPE 上验证采集服务和页面文件；截图展示浏览器黑暗模式下的实际效果。其他系统版本欢迎提交测试结果。
+透明图表修复已在 ImmortalWrt 24.10-SNAPSHOT / aarch64 CPE 上验证采集服务和页面文件。其他系统版本欢迎提交测试结果。
 
 ## 编译
 

@@ -218,19 +218,20 @@ local function flush()
   if #buffer == 0 then return end
   wl.ensure_dir()
   local ids = {}
-  for _, t in ipairs(targets) do ids[t.id] = true end
   for i = 1, #buffer do
-    for id, _ in pairs(buffer[i].values) do ids[id] = true end
+    for id, _ in pairs(buffer[i].observed or buffer[i].values) do ids[id] = true end
   end
   local minute = math.floor(buffer[1].ts / 60) * 60
   for id, _ in pairs(ids) do
     if wl.valid_id(id) then
       local raw, rsum, rn, code = {}, 0, 0, buffer[1].carrier or 0
       for i = 1, #buffer do
+        if (buffer[i].observed or buffer[i].values)[id] then
         local v = buffer[i].values[id]
         raw[#raw + 1] = wl.pack_rec(buffer[i].ts, v, buffer[i].carrier or 0)
         if code ~= (buffer[i].carrier or 0) then code = 6 end
         if v ~= nil then rsum = rsum + v; rn = rn + 1 end
+        end
       end
       if not wl.append_recs(wl.raw_path(id), table.concat(raw)) then log("cannot append raw data for " .. id) end
       local avg = nil
@@ -292,7 +293,8 @@ while running do
       if high_streak[id] == alert_after then log("alert target=" .. id .. " high_latency=" .. tostring(value) .. "ms threshold=" .. high_ms .. "ms") end
     end
   end
-  local rec = { ts = slot, values = rtts, carrier = carrier }
+  local observed = {}; for _, target in ipairs(targets) do observed[target.id] = true end
+  local rec = { observed = observed, ts = slot, values = rtts, carrier = carrier }
   buffer[#buffer + 1] = rec
   write_latest(slot, wan_dev, rtts, ips, methods)
   local oldest = buffer[1] and buffer[1].ts or 0

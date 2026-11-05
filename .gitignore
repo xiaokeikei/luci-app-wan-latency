@@ -7,3 +7,6 @@ build_dir/
 staging_dir/
 .DS_Store
 Thumbs.db
+
+# Local device screenshots may contain private information.
+docs/screenshots/

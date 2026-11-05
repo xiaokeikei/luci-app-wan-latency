@@ -106,7 +106,12 @@ PALETTE = {"#ff7a1a","#2ec7ff","#8bdc63","#f6c445","#c084fc","#fb7185","#22d3ee"
 PRESETS = {
   {id="ali", name="阿里云", host="223.5.5.5", color="#ff7a1a", region="domestic"},
   {id="tencent", name="腾讯云", host="119.29.29.29", color="#2ec7ff", region="domestic"},
-  {id="steam", name="Steam", host="store.steampowered.com", color="#8bdc63", region="foreign"}
+  {id="steam", name="Steam", host="store.steampowered.com", color="#8bdc63", region="foreign"},
+  {id="dns114", name="114 DNS", host="114.114.114.114", color="#a78bfa", region="domestic"},
+  {id="baidu", name="百度 DNS", host="180.76.76.76", color="#f472b6", region="domestic"},
+  {id="cloudflare", name="Cloudflare", host="1.1.1.1", color="#fbbf24", region="foreign"},
+  {id="google", name="Google DNS", host="8.8.8.8", color="#34d399", region="foreign"},
+  {id="quad9", name="Quad9", host="9.9.9.9", color="#fb7185", region="foreign"}
 }
 
 function load_paths()
@@ -266,7 +271,7 @@ function choose_step(from_ts, to_ts, min_step)
 end
 
 function query_one(path, from_ts, to_ts, step, carrier)
-  local empty = { t = {}, avg = {}, min = {}, max = {}, count = 0, carriers = {} }
+  local empty = { t = {}, avg = {}, min = {}, max = {}, count = 0, failed = 0, carriers = {} }
   local n = file_count(path)
   if n <= 0 then return empty end
   local f = io.open(path, "rb")
@@ -282,7 +287,7 @@ function query_one(path, from_ts, to_ts, step, carrier)
   local i1 = lower_bound(f, n, to_ts + 1) - 1
   if i1 < i0 then f:close(); return empty end
   step = step or 5
-  local out = { t = {}, avg = {}, min = {}, max = {}, count = 0, carriers = {} }
+  local out = { t = {}, avg = {}, min = {}, max = {}, count = 0, failed = 0, carriers = {} }
   local bts, bn, bsum, bmin, bmax = nil, 0, 0, nil, nil
   local function flush()
     if bts == nil then return end
@@ -321,6 +326,7 @@ function query_one(path, from_ts, to_ts, step, carrier)
         end
         if carrier == nil or carrier == code then
         out.count = out.count + 1
+        if rec.rtt == nil then out.failed = out.failed + 1 end
         local bt = math.floor(rec.ts / step) * step
         if bts and bts ~= bt then flush(); bn, bsum, bmin, bmax = 0, 0, nil, nil end
         bts = bt
